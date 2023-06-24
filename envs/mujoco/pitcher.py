@@ -1,8 +1,16 @@
+from platform import release
+from pprint import pp
+from time import time
 import numpy as np
+import torch
 
 from gym import utils
 from gym.envs.mujoco import MujocoEnv
 from gym.spaces import Box
+
+from trajectory_module import compute_trajectory
+
+from os import path
 
 DEFAULT_CAMERA_CONFIG = {
     "trackbodyid": 1,
@@ -10,7 +18,6 @@ DEFAULT_CAMERA_CONFIG = {
     "lookat": np.array((0.0, 0.0, 2.0)),
     "elevation": -20.0,
 }
-
 
 def mass_center(model, data):
     mass = np.expand_dims(model.body_mass, axis=1)
@@ -43,10 +50,20 @@ class PitcherEnv(MujocoEnv, utils.EzPickle):
     | 10   | Torque applied on the rotor between the left hip/thigh and the left shin          | -0.4 | 0.4 | left_knee                   | hinge | torque (N m) |
     | 11   | Torque applied on the rotor between the torso and right upper arm (coordinate -1) | -0.4 | 0.4 | right_shoulder1             | hinge | torque (N m) |
     | 12   | Torque applied on the rotor between the torso and right upper arm (coordinate -2) | -0.4 | 0.4 | right_shoulder2             | hinge | torque (N m) |
-    | 13   | Torque applied on the rotor between the right upper arm and right lower arm       | -0.4 | 0.4 | right_elbow                 | hinge | torque (N m) |
-    | 14   | Torque applied on the rotor between the torso and left upper arm (coordinate -1)  | -0.4 | 0.4 | left_shoulder1              | hinge | torque (N m) |
-    | 15   | Torque applied on the rotor between the torso and left upper arm (coordinate -2)  | -0.4 | 0.4 | left_shoulder2              | hinge | torque (N m) |
-    | 16   | Torque applied on the rotor between the left upper arm and left lower arm         | -0.4 | 0.4 | left_elbow                  | hinge | torque (N m) |
+    | 13   | Torque applied on the rotor between the torso and right upper arm (coordinate -3) | -0.4 | 0.4 | right_shoulder3             | hinge | torque (N m) |
+    | 14   | Torque applied on the rotor between the right upper arm and right lower arm (1)     | -0.4 | 0.4 | right_elbow1                 | hinge | torque (N m) |
+    | 15   | Torque applied on the rotor between the right upper arm and right lower arm (2)      | -0.4 | 0.4 | right_elbow2                 | hinge | torque (N m) |
+    | 16   | Torque applied on the rotor between the torso and left upper arm (coordinate -1)  | -0.4 | 0.4 | left_shoulder1              | hinge | torque (N m) |
+    | 17   | Torque applied on the rotor between the torso and left upper arm (coordinate -2)  | -0.4 | 0.4 | left_shoulder2              | hinge | torque (N m) |
+    | 18   | Torque applied on the rotor between the torso and left upper arm (coordinate -3)  | -0.4 | 0.4 | left_shoulder3              | hinge | torque (N m) |
+    | 19   | Torque applied on the rotor between the left upper arm and left lower arm         | -0.4 | 0.4 | left_elbow1                  | hinge | torque (N m) |
+    | 20   | Torque applied on the rotor between the left upper arm and left lower arm         | -0.4 | 0.4 | left_elbow2                  | hinge | torque (N m) |
+    | 21   | Torque applied on the rotor between the left shin and the left foot (z-coordinate)| -0.4 | 0.4 | left_ankle_z                 | hinge | torque (N m) |
+    | 22   | Torque applied on the rotor between the left shin and the left foot (y-coordinate)| -0.4 | 0.4 | left_ankle_y                 | hinge | torque (N m) |
+    | 23   | Torque applied on the rotor between right shin and right foot (z-coordinate)      | -0.4 | 0.4 | right_ankle_z                 | hinge | torque (N m) |
+    | 24   | Torque applied on the rotor between right shin and right foot (y-coordinate)      | -0.4 | 0.4 | right_ankle_y                 | hinge | torque (N m) |
+    | 25   | Whether the ball has been released from the right hand                            | 0 | 1 |                                    | | Boolean| 
+
     ### Observation Space
     Observations consist of positional values of different body parts of the Humanoid,
      followed by the velocities of those individual parts (their derivatives) with all the
@@ -70,41 +87,57 @@ class PitcherEnv(MujocoEnv, utils.EzPickle):
     | 7   | x-angle of the abdomen (in pelvis)                                                                              | -Inf | Inf | abdomen_x                        | hinge | angle (rad)                |
     | 8   | x-coordinate of angle between pelvis and right hip (in right_thigh)                                             | -Inf | Inf | right_hip_x                      | hinge | angle (rad)                |
     | 9   | z-coordinate of angle between pelvis and right hip (in right_thigh)                                             | -Inf | Inf | right_hip_z                      | hinge | angle (rad)                |
-    | 19  | y-coordinate of angle between pelvis and right hip (in right_thigh)                                             | -Inf | Inf | right_hip_y                      | hinge | angle (rad)                |
+    | 10  | y-coordinate of angle between pelvis and right hip (in right_thigh)                                             | -Inf | Inf | right_hip_y                      | hinge | angle (rad)                |
     | 11  | angle between right hip and the right shin (in right_knee)                                                      | -Inf | Inf | right_knee                       | hinge | angle (rad)                |
-    | 12  | x-coordinate of angle between pelvis and left hip (in left_thigh)                                               | -Inf | Inf | left_hip_x                       | hinge | angle (rad)                |
-    | 13  | z-coordinate of angle between pelvis and left hip (in left_thigh)                                               | -Inf | Inf | left_hip_z                       | hinge | angle (rad)                |
-    | 14  | y-coordinate of angle between pelvis and left hip (in left_thigh)                                               | -Inf | Inf | left_hip_y                       | hinge | angle (rad)                |
-    | 15  | angle between left hip and the left shin (in left_knee)                                                         | -Inf | Inf | left_knee                        | hinge | angle (rad)                |
-    | 16  | coordinate-1 (multi-axis) angle between torso and right arm (in right_upper_arm)                                | -Inf | Inf | right_shoulder1                  | hinge | angle (rad)                |
-    | 17  | coordinate-2 (multi-axis) angle between torso and right arm (in right_upper_arm)                                | -Inf | Inf | right_shoulder2                  | hinge | angle (rad)                |
-    | 18  | angle between right upper arm and right_lower_arm                                                               | -Inf | Inf | right_elbow                      | hinge | angle (rad)                |
-    | 19  | coordinate-1 (multi-axis) angle between torso and left arm (in left_upper_arm)                                  | -Inf | Inf | left_shoulder1                   | hinge | angle (rad)                |
-    | 20  | coordinate-2 (multi-axis) angle between torso and left arm (in left_upper_arm)                                  | -Inf | Inf | left_shoulder2                   | hinge | angle (rad)                |
-    | 21  | angle between left upper arm and left_lower_arm                                                                 | -Inf | Inf | left_elbow                       | hinge | angle (rad)                |
-    | 22  | x-coordinate velocity of the torso (centre)                                                                     | -Inf | Inf | root                             | free  | velocity (m/s)             |
-    | 23  | y-coordinate velocity of the torso (centre)                                                                     | -Inf | Inf | root                             | free  | velocity (m/s)             |
-    | 24  | z-coordinate velocity of the torso (centre)                                                                     | -Inf | Inf | root                             | free  | velocity (m/s)             |
-    | 25  | x-coordinate angular velocity of the torso (centre)                                                             | -Inf | Inf | root                             | free  | anglular velocity (rad/s)  |
-    | 26  | y-coordinate angular velocity of the torso (centre)                                                             | -Inf | Inf | root                             | free  | anglular velocity (rad/s)  |
-    | 27  | z-coordinate angular velocity of the torso (centre)                                                             | -Inf | Inf | root                             | free  | anglular velocity (rad/s)  |
-    | 28  | z-coordinate of angular velocity of the abdomen (in lower_waist)                                                | -Inf | Inf | abdomen_z                        | hinge | anglular velocity (rad/s)  |
-    | 29  | y-coordinate of angular velocity of the abdomen (in lower_waist)                                                | -Inf | Inf | abdomen_y                        | hinge | anglular velocity (rad/s)  |
-    | 30  | x-coordinate of angular velocity of the abdomen (in pelvis)                                                     | -Inf | Inf | abdomen_x                        | hinge | aanglular velocity (rad/s) |
-    | 31  | x-coordinate of the angular velocity of the angle between pelvis and right hip (in right_thigh)                 | -Inf | Inf | right_hip_x                      | hinge | anglular velocity (rad/s)  |
-    | 32  | z-coordinate of the angular velocity of the angle between pelvis and right hip (in right_thigh)                 | -Inf | Inf | right_hip_z                      | hinge | anglular velocity (rad/s)  |
-    | 33  | y-coordinate of the angular velocity of the angle between pelvis and right hip (in right_thigh)                 | -Inf | Inf | right_hip_y                      | hinge | anglular velocity (rad/s)  |
-    | 34  | angular velocity of the angle between right hip and the right shin (in right_knee)                              | -Inf | Inf | right_knee                       | hinge | anglular velocity (rad/s)  |
-    | 35  | x-coordinate of the angular velocity of the angle between pelvis and left hip (in left_thigh)                   | -Inf | Inf | left_hip_x                       | hinge | anglular velocity (rad/s)  |
-    | 36  | z-coordinate of the angular velocity of the angle between pelvis and left hip (in left_thigh)                   | -Inf | Inf | left_hip_z                       | hinge | anglular velocity (rad/s)  |
-    | 37  | y-coordinate of the angular velocity of the angle between pelvis and left hip (in left_thigh)                   | -Inf | Inf | left_hip_y                       | hinge | anglular velocity (rad/s)  |
-    | 38  | angular velocity of the angle between left hip and the left shin (in left_knee)                                 | -Inf | Inf | left_knee                        | hinge | anglular velocity (rad/s)  |
-    | 39  | coordinate-1 (multi-axis) of the angular velocity of the angle between torso and right arm (in right_upper_arm) | -Inf | Inf | right_shoulder1                  | hinge | anglular velocity (rad/s)  |
-    | 40  | coordinate-2 (multi-axis) of the angular velocity of the angle between torso and right arm (in right_upper_arm) | -Inf | Inf | right_shoulder2                  | hinge | anglular velocity (rad/s)  |
-    | 41  | angular velocity of the angle between right upper arm and right_lower_arm                                       | -Inf | Inf | right_elbow                      | hinge | anglular velocity (rad/s)  |
-    | 42  | coordinate-1 (multi-axis) of the angular velocity of the angle between torso and left arm (in left_upper_arm)   | -Inf | Inf | left_shoulder1                   | hinge | anglular velocity (rad/s)  |
-    | 43  | coordinate-2 (multi-axis) of the angular velocity of the angle between torso and left arm (in left_upper_arm)   | -Inf | Inf | left_shoulder2                   | hinge | anglular velocity (rad/s)  |
-    | 44  | angular velocitty of the angle between left upper arm and left_lower_arm                                        | -Inf | Inf | left_elbow                       | hinge | anglular velocity (rad/s)  |
+    | 12  | z-coordinate of angle between right shin and the right foot                                                     | -Inf | Inf | right_ankle_z                     | hinge | angle (rad)                |
+    | 13  | y-coordinate of angle between right shin and the right foot                                                       | -Inf | Inf | right_ankle_y                     | hinge | angle (rad)                |
+    | 14  | x-coordinate of angle between pelvis and left hip (in left_thigh)                                               | -Inf | Inf | left_hip_x                       | hinge | angle (rad)                |
+    | 15  | z-coordinate of angle between pelvis and left hip (in left_thigh)                                               | -Inf | Inf | left_hip_z                       | hinge | angle (rad)                |
+    | 16  | y-coordinate of angle between pelvis and left hip (in left_thigh)                                               | -Inf | Inf | left_hip_y                       | hinge | angle (rad)                |
+    | 17  | angle between left hip and the left shin (in left_knee)                                                         | -Inf | Inf | left_knee                        | hinge | angle (rad)                |
+    | 18  | z-coordinate of angle between left shin and the left foot                                                     | -Inf | Inf | left_ankle_z                     | hinge | angle (rad)                |
+    | 19  | y-coordinate of angle between left shin and the left foot                                                       | -Inf | Inf | left_ankle_y   | hinge | angle (rad)                |
+    | 20  | coordinate-1 (multi-axis) angle between torso and right arm (in right_upper_arm)                                | -Inf | Inf | right_shoulder1                  | hinge | angle (rad)                |
+    | 21  | coordinate-2 (multi-axis) angle between torso and right arm (in right_upper_arm)                                | -Inf | Inf | right_shoulder2                  | hinge | angle (rad)                |
+    | 22  | coordinate-3 (multi-axis) angle between torso and right arm (in right_upper_arm)                                | -Inf | Inf | right_shoulder3                  | hinge | angle (rad)                |
+    | 23  | coordinate-1 (multi-axis) angle between right upper arm and right_lower_arm                                     | -Inf | Inf | right_elbow1                      | hinge | angle (rad)                |
+    | 24  | coordinate-2 (multi-axis) angle between right upper arm and right_lower_arm                                     | -Inf | Inf | right_elbow2                      | hinge | angle (rad)                |
+    | 25  | coordinate-1 (multi-axis) angle between torso and left arm (in left_upper_arm)                                  | -Inf | Inf | left_shoulder1                   | hinge | angle (rad)                |
+    | 26  | coordinate-2 (multi-axis) angle between torso and left arm (in left_upper_arm)                                  | -Inf | Inf | left_shoulder2                   | hinge | angle (rad)                |
+    | 27  | coordinate-3 (multi-axis) angle between torso and left arm (in left_upper_arm)                                  | -Inf | Inf | left_shoulder3                   | hinge | angle (rad)                |
+    | 28  | coordinate-1 (multi-axis) angle between left upper arm and left_lower_arm                                       | -Inf | Inf | left_elbow1                       | hinge | angle (rad)                |
+    | 29  | coordinate-2 (multi-axis) angle between left upper arm and left_lower_arm                                       | -Inf | Inf | left_elbow2                       | hinge | angle (rad)                |
+    | 30  | x-coordinate velocity of the torso (centre)                                                                     | -Inf | Inf | root                             | free  | velocity (m/s)             |
+    | 31  | y-coordinate velocity of the torso (centre)                                                                     | -Inf | Inf | root                             | free  | velocity (m/s)             |
+    | 32  | z-coordinate velocity of the torso (centre)                                                                     | -Inf | Inf | root                             | free  | velocity (m/s)             |
+    | 33  | x-coordinate angular velocity of the torso (centre)                                                             | -Inf | Inf | root                             | free  | anglular velocity (rad/s)  |
+    | 34  | y-coordinate angular velocity of the torso (centre)                                                             | -Inf | Inf | root                             | free  | anglular velocity (rad/s)  |
+    | 35  | z-coordinate angular velocity of the torso (centre)                                                             | -Inf | Inf | root                             | free  | anglular velocity (rad/s)  |
+    | 36  | z-coordinate of angular velocity of the abdomen (in lower_waist)                                                | -Inf | Inf | abdomen_z                        | hinge | anglular velocity (rad/s)  |
+    | 37  | y-coordinate of angular velocity of the abdomen (in lower_waist)                                                | -Inf | Inf | abdomen_y                        | hinge | anglular velocity (rad/s)  |
+    | 38  | x-coordinate of angular velocity of the abdomen (in pelvis)                                                     | -Inf | Inf | abdomen_x                        | hinge | aanglular velocity (rad/s) |
+    | 39  | x-coordinate of the angular velocity of the angle between pelvis and right hip (in right_thigh)                 | -Inf | Inf | right_hip_x                      | hinge | anglular velocity (rad/s)  |
+    | 40  | z-coordinate of the angular velocity of the angle between pelvis and right hip (in right_thigh)                 | -Inf | Inf | right_hip_z                      | hinge | anglular velocity (rad/s)  |
+    | 41  | y-coordinate of the angular velocity of the angle between pelvis and right hip (in right_thigh)                 | -Inf | Inf | right_hip_y                      | hinge | anglular velocity (rad/s)  |
+    | 42  | angular velocity of the angle between right hip and the right shin (in right_knee)                              | -Inf | Inf | right_knee                       | hinge | anglular velocity (rad/s)  |
+    | 43  | z-coordinate of the angular velocity of the angle between right shin and the right foot                 | -Inf | Inf | right_ankle_z                     | hinge | anglular velocity (rad/s)  |
+    | 44  | y-coordinate of the angular velocity of the angle between right shin and the right foot                | -Inf | Inf | right_ankle_y                      | hinge | anglular velocity (rad/s)  |
+    | 45  | x-coordinate of the angular velocity of the angle between pelvis and left hip (in left_thigh)                   | -Inf | Inf | left_hip_x                       | hinge | anglular velocity (rad/s)  |
+    | 46  | z-coordinate of the angular velocity of the angle between pelvis and left hip (in left_thigh)                   | -Inf | Inf | left_hip_z                       | hinge | anglular velocity (rad/s)  |
+    | 47  | y-coordinate of the angular velocity of the angle between pelvis and left hip (in left_thigh)                   | -Inf | Inf | left_hip_y                       | hinge | anglular velocity (rad/s)  |
+    | 48  | angular velocity of the angle between left hip and the left shin (in left_knee)                                 | -Inf | Inf | left_knee                        | hinge | anglular velocity (rad/s)  |
+    | 49  | z-coordinate of the angular velocity of the angle between left shin and the left foot                 | -Inf | Inf | right_ankle_z                     | hinge | anglular velocity (rad/s)  |
+    | 50  | y-coordinate of the angular velocity of the angle between left shin and the left foot                | -Inf | Inf | right_ankle_y                      | hinge | anglular velocity (rad/s)  |
+    | 51  | coordinate-1 (multi-axis) of the angular velocity of the angle between torso and right arm (in right_upper_arm) | -Inf | Inf | right_shoulder1                  | hinge | anglular velocity (rad/s)  |
+    | 52  | coordinate-2 (multi-axis) of the angular velocity of the angle between torso and right arm (in right_upper_arm) | -Inf | Inf | right_shoulder2                  | hinge | anglular velocity (rad/s)  |
+    | 53  | coordinate-3 (multi-axis) of the angular velocity of the angle between torso and right arm (in right_upper_arm) | -Inf | Inf | right_shoulder3                  | hinge | anglular velocity (rad/s)  |
+    | 54  | coordinate-1 (multi-axis) angular velocity of the angle between right upper arm and right_lower_arm             | -Inf | Inf | right_elbow1                      | hinge | anglular velocity (rad/s)  |
+    | 55  | coordinate-2 (multi-axis) angular velocity of the angle between right upper arm and right_lower_arm             | -Inf | Inf | right_elbow2                      | hinge | anglular velocity (rad/s)  |
+    | 56  | coordinate-1 (multi-axis) of the angular velocity of the angle between torso and left arm (in left_upper_arm)   | -Inf | Inf | left_shoulder1                   | hinge | anglular velocity (rad/s)  |
+    | 57  | coordinate-2 (multi-axis) of the angular velocity of the angle between torso and left arm (in left_upper_arm)   | -Inf | Inf | left_shoulder2                   | hinge | anglular velocity (rad/s)  |
+    | 58  | coordinate-3 (multi-axis) of the angular velocity of the angle between torso and left arm (in left_upper_arm)   | -Inf | Inf | left_shoulder3                  | hinge | anglular velocity (rad/s)  |
+    | 59  | coordinate-1 (multi-axis) angular velocity of the angle between left upper arm and left_lower_arm               | -Inf | Inf | left_elbow                       | hinge | anglular velocity (rad/s)  |
+    | 60  | coordinate-2 (multi-axis) angular velocity of the angle between left upper arm and left_lower_arm               | -Inf | Inf | left_elbow                       | hinge | anglular velocity (rad/s)  |
     Additionally, after all the positional and velocity based values in the table,
     the observation contains (in order):
     - *cinert:* Mass and inertia of a single rigid body relative to the center of mass
@@ -113,7 +146,7 @@ class PitcherEnv(MujocoEnv, utils.EzPickle):
     - *cvel:* Center of mass based velocity. It has shape 14 * 6 (*nbody * 6*) and hence
     adds another 84 elements in the state space
     - *qfrc_actuator:* Constraint force generated as the actuator force. This has shape
-    `(23,)`  *(nv * 1)* and hence adds another 23 elements to the state space.
+    `(31,)`  *(nv * 1)* and hence adds another 31 elements to the state space.
     - *cfrc_ext:* This is the center of mass based external force on the body.  It has shape
     14 * 6 (*nbody * 6*) and hence adds to another 84 elements in the state space.
     where *nbody* stands for the number of bodies in the robot and *nv* stands for the
@@ -200,9 +233,12 @@ class PitcherEnv(MujocoEnv, utils.EzPickle):
         forward_reward_weight=1.25,
         ctrl_cost_weight=0.1,
         healthy_reward=5.0,
+        releasepoint_reward_weight=1.0,
+        time_reward_weight=1.0,
         terminate_when_unhealthy=True,
         healthy_z_range=(1.0, 2.0),
         reset_noise_scale=1e-2,
+        right_foot_shift=0.5,
         exclude_current_positions_from_observation=True,
         **kwargs
     ):
@@ -221,8 +257,11 @@ class PitcherEnv(MujocoEnv, utils.EzPickle):
         self._forward_reward_weight = forward_reward_weight
         self._ctrl_cost_weight = ctrl_cost_weight
         self._healthy_reward = healthy_reward
+        self._releasepoint_reward_weight = releasepoint_reward_weight
+        self._time_reward_weight = time_reward_weight
         self._terminate_when_unhealthy = terminate_when_unhealthy
         self._healthy_z_range = healthy_z_range
+        self._right_foot_shift_limit = right_foot_shift
 
         self._reset_noise_scale = reset_noise_scale
 
@@ -230,18 +269,33 @@ class PitcherEnv(MujocoEnv, utils.EzPickle):
             exclude_current_positions_from_observation
         )
 
+        self.ball_in_hand = False
+
         if exclude_current_positions_from_observation:
             observation_space = Box(
-                low=-np.inf, high=np.inf, shape=(376,), dtype=np.float64
+                low=-np.inf, high=np.inf, shape=(422,), dtype=np.float64
             )
         else:
             observation_space = Box(
-                low=-np.inf, high=np.inf, shape=(390,), dtype=np.float64
+                low=-np.inf, high=np.inf, shape=(424,), dtype=np.float64
             )
 
+        self.fullpath = path.join(path.dirname(path.dirname(__file__)), "assets", "pitcher.xml")
         MujocoEnv.__init__(
-            self, "pitcher.xml", 5, observation_space=observation_space, **kwargs
+            self, self.fullpath, 5, observation_space=observation_space, **kwargs
         )
+
+    @property
+    def strikezone_center(self): 
+        return torch.tensor([0, 0.231])
+
+    @property
+    def strikezone_dimensions(self): 
+        return torch.tensor([0.0956, 0.214])
+
+    @property
+    def right_foot_start(self): 
+        return [0.05, 0, 0.1]
 
     @property
     def healthy_reward(self):
@@ -249,6 +303,42 @@ class PitcherEnv(MujocoEnv, utils.EzPickle):
             float(self.is_healthy or self._terminate_when_unhealthy)
             * self._healthy_reward
         )
+
+    # The following three reward properties are computed at the state of the release point, which
+    # is decided by the model. 
+    def releasepoint_reward(self, velo):
+        # This computes the linear velocity of the baseball and gives rewards the faster the baseball is. 
+        # The baseball is assumed to be the position of the right hand, and it is assumed that there is no radial 
+        # velocity.
+
+        trans_vel = np.linalg.norm(velo)
+        # Centering around 95 mph, or 42.47 m/s
+        reward = torch.distributions.Normal(42.47)
+        return reward.cdf(trans_vel) * self.releasepoint_reward
+
+    def strikezone_reward(self, final_pos): 
+        # We also provide a smaller reward proportional to how close the ball crosses the heart of the plate. 
+        pos = [final_pos[-3], final_pos[-1]]
+        reward = torch.distribution.Normal(self.strikezone_center, self.strikezone_dimensions / 2)
+        return reward.log_prob(pos)
+
+    def proximity_reward(self, final_pos): 
+        # Reward if the baseball reaches the batter/home plate, 60 feet away. This translates to ~4.02 units away
+        # in Cartesian space, and tops out once it does reach. 
+        return min(1, np.exp(4.02 - final_pos[1]))
+
+    def time_reward(self, time): 
+        # The quicker the ball gets to the strike zone, the better. 
+        # There is a minimal reward if the ball does not reach the strike zone.
+        return time * self._time_reward_weight
+
+    def windup_cost(self, pos, has_ball): 
+        # Make sure the pitcher throws the ball before the right foot leaves the ground.
+        dist = np.linalg.norm(pos - self.right_foot_start)
+        if dist > self._right_foot_shift_limit and has_ball: 
+            return 1000
+        return 0
+
 
     def control_cost(self, action):
         control_cost = self._ctrl_cost_weight * np.sum(np.square(self.data.ctrl))
@@ -265,6 +355,9 @@ class PitcherEnv(MujocoEnv, utils.EzPickle):
     def terminated(self):
         terminated = (not self.is_healthy) if self._terminate_when_unhealthy else False
         return terminated
+
+    def get_data(self):
+        return self.data.xpos
 
     def _get_obs(self):
         position = self.data.qpos.flat.copy()
@@ -290,23 +383,40 @@ class PitcherEnv(MujocoEnv, utils.EzPickle):
             )
         )
 
+    def _compute_rewards(self, action, x_velocity, x_pos): 
+        forward_reward = self._forward_reward_weight * x_velocity
+        healthy_reward = self.healthy_reward
+
+        release_reward = 0
+        strike_reward = 0
+        time_reward = 0
+        proximity_reward = 0
+        if self.ball_in_hand and not action[-1]:
+            time_elapsed, final_pos, final_velo = compute_trajectory(x_velocity, x_pos)
+            release_reward = self.releasepoint_reward(final_velo)
+            strike_reward = self.strikezone_reward(final_pos)
+            time_reward = self.time_reward(time_elapsed)
+            proximity_reward = self.proximity_reward(final_pos)
+
+        return (forward_reward, healthy_reward, release_reward, strike_reward, time_reward, proximity_reward)
+
+
     def step(self, action):
         xy_position_before = mass_center(self.model, self.data)
-        self.do_simulation(action, self.frame_skip)
+        self.do_simulation(action[:-1], self.frame_skip)
         xy_position_after = mass_center(self.model, self.data)
 
         xy_velocity = (xy_position_after - xy_position_before) / self.dt
         x_velocity, y_velocity = xy_velocity
 
         ctrl_cost = self.control_cost(action)
+        windup_cost = self.windup_cost(self.data.xpos[6], action[-1])
 
-        forward_reward = self._forward_reward_weight * x_velocity
-        healthy_reward = self.healthy_reward
-
-        rewards = forward_reward + healthy_reward
+        forward_reward, healthy_reward, release_reward, strike_reward, time_reward, proximity_reward = self._compute_rewards(action, self.data.cvel, self.data.xpos)
+        rewards = forward_reward + healthy_reward + release_reward + strike_reward + time_reward + proximity_reward
 
         observation = self._get_obs()
-        reward = rewards - ctrl_cost
+        reward = rewards - ctrl_cost - windup_cost
         terminated = self.terminated
         info = {
             "reward_linvel": forward_reward,
@@ -318,7 +428,13 @@ class PitcherEnv(MujocoEnv, utils.EzPickle):
             "x_velocity": x_velocity,
             "y_velocity": y_velocity,
             "forward_reward": forward_reward,
+            "release_reward": release_reward,
+            "strike_reward": strike_reward,
+            "time_reward": time_reward, 
+            "proximity_reward": proximity_reward
         }
+
+        self.ball_in_hand &= action[-1]
 
         if self.render_mode == "human":
             self.render()
