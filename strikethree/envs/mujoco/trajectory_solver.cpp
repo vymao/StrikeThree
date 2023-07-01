@@ -1947,13 +1947,14 @@ static void __pyx_f_17trajectory_module_step(float *__pyx_v_ang_velo, float *__p
  *         lin_velo[i] += acc[i] * delta_t
  * 
  * def compute_trajectory(list starting_velo, list starting_pos):             # <<<<<<<<<<<<<<
- *     cdef float[3] acc = [0, 0, 0]
- *     cdef float[3] ang_velo = [0, spin_rate, 0]
+ *     """
+ *     This function (and associated functions) numerically integrates the kinematic equations, accounting for drag, gravitational, and magnus forces on
  */
 
 /* Python wrapper */
 static PyObject *__pyx_pw_17trajectory_module_1compute_trajectory(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyMethodDef __pyx_mdef_17trajectory_module_1compute_trajectory = {"compute_trajectory", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_17trajectory_module_1compute_trajectory, METH_VARARGS|METH_KEYWORDS, 0};
+static char __pyx_doc_17trajectory_module_compute_trajectory[] = "\n    This function (and associated functions) numerically integrates the kinematic equations, accounting for drag, gravitational, and magnus forces on \n    a baseball. \n    ";
+static PyMethodDef __pyx_mdef_17trajectory_module_1compute_trajectory = {"compute_trajectory", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_17trajectory_module_1compute_trajectory, METH_VARARGS|METH_KEYWORDS, __pyx_doc_17trajectory_module_compute_trajectory};
 static PyObject *__pyx_pw_17trajectory_module_1compute_trajectory(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_starting_velo = 0;
   PyObject *__pyx_v_starting_pos = 0;
@@ -2053,9 +2054,9 @@ static PyObject *__pyx_pf_17trajectory_module_compute_trajectory(CYTHON_UNUSED P
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("compute_trajectory", 0);
 
-  /* "envs/mujoco/trajectory_solver.pyx":59
- * 
- * def compute_trajectory(list starting_velo, list starting_pos):
+  /* "envs/mujoco/trajectory_solver.pyx":63
+ *     a baseball.
+ *     """
  *     cdef float[3] acc = [0, 0, 0]             # <<<<<<<<<<<<<<
  *     cdef float[3] ang_velo = [0, spin_rate, 0]
  *     cdef float[3] delta_pos = [0, 0, 0]
@@ -2065,8 +2066,8 @@ static PyObject *__pyx_pf_17trajectory_module_compute_trajectory(CYTHON_UNUSED P
   __pyx_t_1[2] = 0.0;
   memcpy(&(__pyx_v_acc[0]), __pyx_t_1, sizeof(__pyx_v_acc[0]) * (3));
 
-  /* "envs/mujoco/trajectory_solver.pyx":60
- * def compute_trajectory(list starting_velo, list starting_pos):
+  /* "envs/mujoco/trajectory_solver.pyx":64
+ *     """
  *     cdef float[3] acc = [0, 0, 0]
  *     cdef float[3] ang_velo = [0, spin_rate, 0]             # <<<<<<<<<<<<<<
  *     cdef float[3] delta_pos = [0, 0, 0]
@@ -2077,7 +2078,7 @@ static PyObject *__pyx_pf_17trajectory_module_compute_trajectory(CYTHON_UNUSED P
   __pyx_t_2[2] = 0.0;
   memcpy(&(__pyx_v_ang_velo[0]), __pyx_t_2, sizeof(__pyx_v_ang_velo[0]) * (3));
 
-  /* "envs/mujoco/trajectory_solver.pyx":61
+  /* "envs/mujoco/trajectory_solver.pyx":65
  *     cdef float[3] acc = [0, 0, 0]
  *     cdef float[3] ang_velo = [0, spin_rate, 0]
  *     cdef float[3] delta_pos = [0, 0, 0]             # <<<<<<<<<<<<<<
@@ -2089,7 +2090,7 @@ static PyObject *__pyx_pf_17trajectory_module_compute_trajectory(CYTHON_UNUSED P
   __pyx_t_3[2] = 0.0;
   memcpy(&(__pyx_v_delta_pos[0]), __pyx_t_3, sizeof(__pyx_v_delta_pos[0]) * (3));
 
-  /* "envs/mujoco/trajectory_solver.pyx":62
+  /* "envs/mujoco/trajectory_solver.pyx":66
  *     cdef float[3] ang_velo = [0, spin_rate, 0]
  *     cdef float[3] delta_pos = [0, 0, 0]
  *     cdef float time_elapsed = 0             # <<<<<<<<<<<<<<
@@ -2098,14 +2099,14 @@ static PyObject *__pyx_pf_17trajectory_module_compute_trajectory(CYTHON_UNUSED P
  */
   __pyx_v_time_elapsed = 0.0;
 
-  /* "envs/mujoco/trajectory_solver.pyx":64
+  /* "envs/mujoco/trajectory_solver.pyx":68
  *     cdef float time_elapsed = 0
  * 
  *     cdef array.array pos = array.array('f', starting_pos)             # <<<<<<<<<<<<<<
  *     cdef float[3] lin_pos = pos.data.as_floats
  * 
  */
-  __pyx_t_4 = PyTuple_New(2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 64, __pyx_L1_error)
+  __pyx_t_4 = PyTuple_New(2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 68, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_INCREF(__pyx_n_s_f);
   __Pyx_GIVEREF(__pyx_n_s_f);
@@ -2113,13 +2114,13 @@ static PyObject *__pyx_pf_17trajectory_module_compute_trajectory(CYTHON_UNUSED P
   __Pyx_INCREF(__pyx_v_starting_pos);
   __Pyx_GIVEREF(__pyx_v_starting_pos);
   PyTuple_SET_ITEM(__pyx_t_4, 1, __pyx_v_starting_pos);
-  __pyx_t_5 = __Pyx_PyObject_Call(((PyObject *)__pyx_ptype_7cpython_5array_array), __pyx_t_4, NULL); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 64, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_Call(((PyObject *)__pyx_ptype_7cpython_5array_array), __pyx_t_4, NULL); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 68, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __pyx_v_pos = ((arrayobject *)__pyx_t_5);
   __pyx_t_5 = 0;
 
-  /* "envs/mujoco/trajectory_solver.pyx":65
+  /* "envs/mujoco/trajectory_solver.pyx":69
  * 
  *     cdef array.array pos = array.array('f', starting_pos)
  *     cdef float[3] lin_pos = pos.data.as_floats             # <<<<<<<<<<<<<<
@@ -2129,14 +2130,14 @@ static PyObject *__pyx_pf_17trajectory_module_compute_trajectory(CYTHON_UNUSED P
   __pyx_t_6 = __pyx_v_pos->data.as_floats;
   memcpy(&(__pyx_v_lin_pos[0]), __pyx_t_6, sizeof(__pyx_v_lin_pos[0]) * (3 - 0));
 
-  /* "envs/mujoco/trajectory_solver.pyx":67
+  /* "envs/mujoco/trajectory_solver.pyx":71
  *     cdef float[3] lin_pos = pos.data.as_floats
  * 
  *     cdef array.array velo = array.array('f', starting_velo)             # <<<<<<<<<<<<<<
  *     cdef float[3] lin_velo = velo.data.as_floats
  * 
  */
-  __pyx_t_5 = PyTuple_New(2); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 67, __pyx_L1_error)
+  __pyx_t_5 = PyTuple_New(2); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 71, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_INCREF(__pyx_n_s_f);
   __Pyx_GIVEREF(__pyx_n_s_f);
@@ -2144,13 +2145,13 @@ static PyObject *__pyx_pf_17trajectory_module_compute_trajectory(CYTHON_UNUSED P
   __Pyx_INCREF(__pyx_v_starting_velo);
   __Pyx_GIVEREF(__pyx_v_starting_velo);
   PyTuple_SET_ITEM(__pyx_t_5, 1, __pyx_v_starting_velo);
-  __pyx_t_4 = __Pyx_PyObject_Call(((PyObject *)__pyx_ptype_7cpython_5array_array), __pyx_t_5, NULL); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 67, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_Call(((PyObject *)__pyx_ptype_7cpython_5array_array), __pyx_t_5, NULL); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 71, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   __pyx_v_velo = ((arrayobject *)__pyx_t_4);
   __pyx_t_4 = 0;
 
-  /* "envs/mujoco/trajectory_solver.pyx":68
+  /* "envs/mujoco/trajectory_solver.pyx":72
  * 
  *     cdef array.array velo = array.array('f', starting_velo)
  *     cdef float[3] lin_velo = velo.data.as_floats             # <<<<<<<<<<<<<<
@@ -2160,7 +2161,7 @@ static PyObject *__pyx_pf_17trajectory_module_compute_trajectory(CYTHON_UNUSED P
   __pyx_t_6 = __pyx_v_velo->data.as_floats;
   memcpy(&(__pyx_v_lin_velo[0]), __pyx_t_6, sizeof(__pyx_v_lin_velo[0]) * (3 - 0));
 
-  /* "envs/mujoco/trajectory_solver.pyx":70
+  /* "envs/mujoco/trajectory_solver.pyx":74
  *     cdef float[3] lin_velo = velo.data.as_floats
  * 
  *     cdef float[3] initial_position = lin_pos             # <<<<<<<<<<<<<<
@@ -2169,7 +2170,7 @@ static PyObject *__pyx_pf_17trajectory_module_compute_trajectory(CYTHON_UNUSED P
  */
   memcpy(&(__pyx_v_initial_position[0]), __pyx_v_lin_pos, sizeof(__pyx_v_initial_position[0]) * (3));
 
-  /* "envs/mujoco/trajectory_solver.pyx":72
+  /* "envs/mujoco/trajectory_solver.pyx":76
  *     cdef float[3] initial_position = lin_pos
  * 
  *     while l2_norm(delta_pos) < distance_to_home:             # <<<<<<<<<<<<<<
@@ -2180,7 +2181,7 @@ static PyObject *__pyx_pf_17trajectory_module_compute_trajectory(CYTHON_UNUSED P
     __pyx_t_7 = ((__pyx_f_17trajectory_module_l2_norm(__pyx_v_delta_pos) < __pyx_v_17trajectory_module_distance_to_home) != 0);
     if (!__pyx_t_7) break;
 
-    /* "envs/mujoco/trajectory_solver.pyx":73
+    /* "envs/mujoco/trajectory_solver.pyx":77
  * 
  *     while l2_norm(delta_pos) < distance_to_home:
  *         step(ang_velo, lin_velo, acc, lin_pos)             # <<<<<<<<<<<<<<
@@ -2189,7 +2190,7 @@ static PyObject *__pyx_pf_17trajectory_module_compute_trajectory(CYTHON_UNUSED P
  */
     __pyx_f_17trajectory_module_step(__pyx_v_ang_velo, __pyx_v_lin_velo, __pyx_v_acc, __pyx_v_lin_pos);
 
-    /* "envs/mujoco/trajectory_solver.pyx":76
+    /* "envs/mujoco/trajectory_solver.pyx":80
  * 
  *         # Reset the acceleration vector and compute delta.
  *         for i in range(3):             # <<<<<<<<<<<<<<
@@ -2199,7 +2200,7 @@ static PyObject *__pyx_pf_17trajectory_module_compute_trajectory(CYTHON_UNUSED P
     for (__pyx_t_8 = 0; __pyx_t_8 < 3; __pyx_t_8+=1) {
       __pyx_v_i = __pyx_t_8;
 
-      /* "envs/mujoco/trajectory_solver.pyx":77
+      /* "envs/mujoco/trajectory_solver.pyx":81
  *         # Reset the acceleration vector and compute delta.
  *         for i in range(3):
  *             acc[i] = 0             # <<<<<<<<<<<<<<
@@ -2208,53 +2209,93 @@ static PyObject *__pyx_pf_17trajectory_module_compute_trajectory(CYTHON_UNUSED P
  */
       (__pyx_v_acc[__pyx_v_i]) = 0.0;
 
-      /* "envs/mujoco/trajectory_solver.pyx":78
+      /* "envs/mujoco/trajectory_solver.pyx":82
  *         for i in range(3):
  *             acc[i] = 0
  *             delta_pos[i] = pos[i] - initial_position[i]             # <<<<<<<<<<<<<<
  * 
  *         time_elapsed += delta_t
  */
-      __pyx_t_4 = __Pyx_GetItemInt(((PyObject *)__pyx_v_pos), __pyx_v_i, long, 1, __Pyx_PyInt_From_long, 0, 1, 1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 78, __pyx_L1_error)
+      __pyx_t_4 = __Pyx_GetItemInt(((PyObject *)__pyx_v_pos), __pyx_v_i, long, 1, __Pyx_PyInt_From_long, 0, 1, 1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 82, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
-      __pyx_t_5 = PyFloat_FromDouble((__pyx_v_initial_position[__pyx_v_i])); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 78, __pyx_L1_error)
+      __pyx_t_5 = PyFloat_FromDouble((__pyx_v_initial_position[__pyx_v_i])); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 82, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_5);
-      __pyx_t_9 = PyNumber_Subtract(__pyx_t_4, __pyx_t_5); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 78, __pyx_L1_error)
+      __pyx_t_9 = PyNumber_Subtract(__pyx_t_4, __pyx_t_5); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 82, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_9);
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
       __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-      __pyx_t_10 = __pyx_PyFloat_AsFloat(__pyx_t_9); if (unlikely((__pyx_t_10 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 78, __pyx_L1_error)
+      __pyx_t_10 = __pyx_PyFloat_AsFloat(__pyx_t_9); if (unlikely((__pyx_t_10 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 82, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
       (__pyx_v_delta_pos[__pyx_v_i]) = __pyx_t_10;
     }
 
-    /* "envs/mujoco/trajectory_solver.pyx":80
+    /* "envs/mujoco/trajectory_solver.pyx":84
  *             delta_pos[i] = pos[i] - initial_position[i]
  * 
  *         time_elapsed += delta_t             # <<<<<<<<<<<<<<
  * 
- *     final_pos, final_velo = [], []
+ *         # Break if any position falls below 0.
  */
     __pyx_v_time_elapsed = (__pyx_v_time_elapsed + __pyx_v_17trajectory_module_delta_t);
+
+    /* "envs/mujoco/trajectory_solver.pyx":87
+ * 
+ *         # Break if any position falls below 0.
+ *         for i in range(3):             # <<<<<<<<<<<<<<
+ *             if lin_pos[i] < 0:
+ *                 break
+ */
+    for (__pyx_t_8 = 0; __pyx_t_8 < 3; __pyx_t_8+=1) {
+      __pyx_v_i = __pyx_t_8;
+
+      /* "envs/mujoco/trajectory_solver.pyx":88
+ *         # Break if any position falls below 0.
+ *         for i in range(3):
+ *             if lin_pos[i] < 0:             # <<<<<<<<<<<<<<
+ *                 break
+ * 
+ */
+      __pyx_t_7 = (((__pyx_v_lin_pos[__pyx_v_i]) < 0.0) != 0);
+      if (__pyx_t_7) {
+
+        /* "envs/mujoco/trajectory_solver.pyx":89
+ *         for i in range(3):
+ *             if lin_pos[i] < 0:
+ *                 break             # <<<<<<<<<<<<<<
+ * 
+ *     final_pos, final_velo = [], []
+ */
+        goto __pyx_L8_break;
+
+        /* "envs/mujoco/trajectory_solver.pyx":88
+ *         # Break if any position falls below 0.
+ *         for i in range(3):
+ *             if lin_pos[i] < 0:             # <<<<<<<<<<<<<<
+ *                 break
+ * 
+ */
+      }
+    }
+    __pyx_L8_break:;
   }
 
-  /* "envs/mujoco/trajectory_solver.pyx":82
- *         time_elapsed += delta_t
+  /* "envs/mujoco/trajectory_solver.pyx":91
+ *                 break
  * 
  *     final_pos, final_velo = [], []             # <<<<<<<<<<<<<<
  *     for i in range(3):
  *         final_pos.append(pos[i])
  */
-  __pyx_t_9 = PyList_New(0); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 82, __pyx_L1_error)
+  __pyx_t_9 = PyList_New(0); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 91, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_9);
-  __pyx_t_5 = PyList_New(0); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 82, __pyx_L1_error)
+  __pyx_t_5 = PyList_New(0); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 91, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __pyx_v_final_pos = ((PyObject*)__pyx_t_9);
   __pyx_t_9 = 0;
   __pyx_v_final_velo = ((PyObject*)__pyx_t_5);
   __pyx_t_5 = 0;
 
-  /* "envs/mujoco/trajectory_solver.pyx":83
+  /* "envs/mujoco/trajectory_solver.pyx":92
  * 
  *     final_pos, final_velo = [], []
  *     for i in range(3):             # <<<<<<<<<<<<<<
@@ -2264,39 +2305,39 @@ static PyObject *__pyx_pf_17trajectory_module_compute_trajectory(CYTHON_UNUSED P
   for (__pyx_t_8 = 0; __pyx_t_8 < 3; __pyx_t_8+=1) {
     __pyx_v_i = __pyx_t_8;
 
-    /* "envs/mujoco/trajectory_solver.pyx":84
+    /* "envs/mujoco/trajectory_solver.pyx":93
  *     final_pos, final_velo = [], []
  *     for i in range(3):
  *         final_pos.append(pos[i])             # <<<<<<<<<<<<<<
  *         final_velo.append(velo[i])
- *     return (delta_t, final_pos, final_velo)
+ *     return (time_elapsed, final_pos, final_velo)
  */
-    __pyx_t_5 = __Pyx_GetItemInt(((PyObject *)__pyx_v_pos), __pyx_v_i, long, 1, __Pyx_PyInt_From_long, 0, 1, 1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 84, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_GetItemInt(((PyObject *)__pyx_v_pos), __pyx_v_i, long, 1, __Pyx_PyInt_From_long, 0, 1, 1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 93, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
-    __pyx_t_11 = __Pyx_PyList_Append(__pyx_v_final_pos, __pyx_t_5); if (unlikely(__pyx_t_11 == ((int)-1))) __PYX_ERR(0, 84, __pyx_L1_error)
+    __pyx_t_11 = __Pyx_PyList_Append(__pyx_v_final_pos, __pyx_t_5); if (unlikely(__pyx_t_11 == ((int)-1))) __PYX_ERR(0, 93, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
-    /* "envs/mujoco/trajectory_solver.pyx":85
+    /* "envs/mujoco/trajectory_solver.pyx":94
  *     for i in range(3):
  *         final_pos.append(pos[i])
  *         final_velo.append(velo[i])             # <<<<<<<<<<<<<<
- *     return (delta_t, final_pos, final_velo)
+ *     return (time_elapsed, final_pos, final_velo)
  */
-    __pyx_t_5 = __Pyx_GetItemInt(((PyObject *)__pyx_v_velo), __pyx_v_i, long, 1, __Pyx_PyInt_From_long, 0, 1, 1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 85, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_GetItemInt(((PyObject *)__pyx_v_velo), __pyx_v_i, long, 1, __Pyx_PyInt_From_long, 0, 1, 1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 94, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
-    __pyx_t_11 = __Pyx_PyList_Append(__pyx_v_final_velo, __pyx_t_5); if (unlikely(__pyx_t_11 == ((int)-1))) __PYX_ERR(0, 85, __pyx_L1_error)
+    __pyx_t_11 = __Pyx_PyList_Append(__pyx_v_final_velo, __pyx_t_5); if (unlikely(__pyx_t_11 == ((int)-1))) __PYX_ERR(0, 94, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   }
 
-  /* "envs/mujoco/trajectory_solver.pyx":86
+  /* "envs/mujoco/trajectory_solver.pyx":95
  *         final_pos.append(pos[i])
  *         final_velo.append(velo[i])
- *     return (delta_t, final_pos, final_velo)             # <<<<<<<<<<<<<<
+ *     return (time_elapsed, final_pos, final_velo)             # <<<<<<<<<<<<<<
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_5 = PyFloat_FromDouble(__pyx_v_17trajectory_module_delta_t); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 86, __pyx_L1_error)
+  __pyx_t_5 = PyFloat_FromDouble(__pyx_v_time_elapsed); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 95, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
-  __pyx_t_9 = PyTuple_New(3); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 86, __pyx_L1_error)
+  __pyx_t_9 = PyTuple_New(3); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 95, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_9);
   __Pyx_GIVEREF(__pyx_t_5);
   PyTuple_SET_ITEM(__pyx_t_9, 0, __pyx_t_5);
@@ -2315,8 +2356,8 @@ static PyObject *__pyx_pf_17trajectory_module_compute_trajectory(CYTHON_UNUSED P
  *         lin_velo[i] += acc[i] * delta_t
  * 
  * def compute_trajectory(list starting_velo, list starting_pos):             # <<<<<<<<<<<<<<
- *     cdef float[3] acc = [0, 0, 0]
- *     cdef float[3] ang_velo = [0, spin_rate, 0]
+ *     """
+ *     This function (and associated functions) numerically integrates the kinematic equations, accounting for drag, gravitational, and magnus forces on
  */
 
   /* function exit code */
@@ -3076,8 +3117,8 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
  *         lin_velo[i] += acc[i] * delta_t
  * 
  * def compute_trajectory(list starting_velo, list starting_pos):             # <<<<<<<<<<<<<<
- *     cdef float[3] acc = [0, 0, 0]
- *     cdef float[3] ang_velo = [0, spin_rate, 0]
+ *     """
+ *     This function (and associated functions) numerically integrates the kinematic equations, accounting for drag, gravitational, and magnus forces on
  */
   __pyx_tuple_ = PyTuple_Pack(14, __pyx_n_s_starting_velo, __pyx_n_s_starting_pos, __pyx_n_s_acc, __pyx_n_s_ang_velo, __pyx_n_s_delta_pos, __pyx_n_s_time_elapsed, __pyx_n_s_pos, __pyx_n_s_lin_pos, __pyx_n_s_velo, __pyx_n_s_lin_velo, __pyx_n_s_initial_position, __pyx_n_s_i, __pyx_n_s_final_pos, __pyx_n_s_final_velo); if (unlikely(!__pyx_tuple_)) __PYX_ERR(0, 58, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple_);
@@ -3494,8 +3535,8 @@ if (!__Pyx_RefNanny) {
  *         lin_velo[i] += acc[i] * delta_t
  * 
  * def compute_trajectory(list starting_velo, list starting_pos):             # <<<<<<<<<<<<<<
- *     cdef float[3] acc = [0, 0, 0]
- *     cdef float[3] ang_velo = [0, spin_rate, 0]
+ *     """
+ *     This function (and associated functions) numerically integrates the kinematic equations, accounting for drag, gravitational, and magnus forces on
  */
   __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_17trajectory_module_1compute_trajectory, NULL, __pyx_n_s_trajectory_module); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 58, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);

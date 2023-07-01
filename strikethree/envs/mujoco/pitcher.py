@@ -1,10 +1,7 @@
-from platform import release
-from pprint import pp
-from time import time
 import numpy as np
 import torch
 
-from gym import utils
+from gym import utils, spaces
 from gym.envs.mujoco import MujocoEnv
 from gym.spaces import Box
 
@@ -273,17 +270,27 @@ class PitcherEnv(MujocoEnv, utils.EzPickle):
 
         if exclude_current_positions_from_observation:
             observation_space = Box(
-                low=-np.inf, high=np.inf, shape=(422,), dtype=np.float64
+                low=-np.inf, high=np.inf, shape=(422,), dtype=np.float32
             )
         else:
             observation_space = Box(
-                low=-np.inf, high=np.inf, shape=(424,), dtype=np.float64
+                low=-np.inf, high=np.inf, shape=(424,), dtype=np.float32
             )
 
         self.fullpath = path.join(path.dirname(path.dirname(__file__)), "assets", "pitcher.xml")
         MujocoEnv.__init__(
             self, self.fullpath, 5, observation_space=observation_space, **kwargs
         )
+
+        #self._adjust_action_space()
+
+    def _adjust_action_space(self): 
+        # Adjust the action space to account for ball release.
+        bounds = self.model.actuator_ctrlrange.copy().astype(np.float32)
+        bounds = np.concatenate([bounds, np.array([[-1.0, 1.0]])])
+        low, high = bounds.T
+        self.action_space = spaces.Box(low=low, high=high, dtype=np.float32)
+        return self.action_space
 
     @property
     def strikezone_center(self): 
@@ -303,6 +310,21 @@ class PitcherEnv(MujocoEnv, utils.EzPickle):
             float(self.is_healthy or self._terminate_when_unhealthy)
             * self._healthy_reward
         )
+
+    @property
+    def is_healthy(self):
+        min_z, max_z = self._healthy_z_range
+        is_healthy = min_z < self.data.qpos[2] < max_z
+
+        return is_healthy
+
+    @property
+    def terminated(self):
+        terminated = (not self.is_healthy) if self._terminate_when_unhealthy else False
+        return terminated
+    
+    def _has_ball(self, action_vector): 
+        return action_vector[-1] > 0
 
     # The following three reward properties are computed at the state of the release point, which
     # is decided by the model. 
@@ -344,20 +366,11 @@ class PitcherEnv(MujocoEnv, utils.EzPickle):
         control_cost = self._ctrl_cost_weight * np.sum(np.square(self.data.ctrl))
         return control_cost
 
-    @property
-    def is_healthy(self):
-        min_z, max_z = self._healthy_z_range
-        is_healthy = min_z < self.data.qpos[2] < max_z
-
-        return is_healthy
-
-    @property
-    def terminated(self):
-        terminated = (not self.is_healthy) if self._terminate_when_unhealthy else False
-        return terminated
-
     def get_data(self):
-        return self.data.xpos
+        return self.data.ctrl
+    
+    def get_action_space(self): 
+        return self.action_space.shape[0]
 
     def _get_obs(self):
         position = self.data.qpos.flat.copy()
@@ -383,15 +396,15 @@ class PitcherEnv(MujocoEnv, utils.EzPickle):
             )
         )
 
-    def _compute_rewards(self, action, x_velocity, x_pos): 
-        forward_reward = self._forward_reward_weight * x_velocity
+    def _compute_rewards(self, action, x_velocity, x_pos, body_x_velocity): 
+        forward_reward = self._forward_reward_weight * body_x_velocity
         healthy_reward = self.healthy_reward
 
         release_reward = 0
         strike_reward = 0
         time_reward = 0
         proximity_reward = 0
-        if self.ball_in_hand and not action[-1]:
+        if self.ball_in_hand and not self._has_ball(action):
             time_elapsed, final_pos, final_velo = compute_trajectory(x_velocity, x_pos)
             release_reward = self.releasepoint_reward(final_velo)
             strike_reward = self.strikezone_reward(final_pos)
@@ -400,8 +413,8 @@ class PitcherEnv(MujocoEnv, utils.EzPickle):
 
         return (forward_reward, healthy_reward, release_reward, strike_reward, time_reward, proximity_reward)
 
-
     def step(self, action):
+        #print(action.size)
         xy_position_before = mass_center(self.model, self.data)
         self.do_simulation(action[:-1], self.frame_skip)
         xy_position_after = mass_center(self.model, self.data)
@@ -410,9 +423,9 @@ class PitcherEnv(MujocoEnv, utils.EzPickle):
         x_velocity, y_velocity = xy_velocity
 
         ctrl_cost = self.control_cost(action)
-        windup_cost = self.windup_cost(self.data.xpos[6], action[-1])
+        windup_cost = self.windup_cost(self.data.xpos[6], self._has_ball(action))
 
-        forward_reward, healthy_reward, release_reward, strike_reward, time_reward, proximity_reward = self._compute_rewards(action, self.data.cvel, self.data.xpos)
+        forward_reward, healthy_reward, release_reward, strike_reward, time_reward, proximity_reward = self._compute_rewards(action, self.data.cvel, self.data.xpos, x_velocity)
         rewards = forward_reward + healthy_reward + release_reward + strike_reward + time_reward + proximity_reward
 
         observation = self._get_obs()
@@ -434,7 +447,7 @@ class PitcherEnv(MujocoEnv, utils.EzPickle):
             "proximity_reward": proximity_reward
         }
 
-        self.ball_in_hand &= action[-1]
+        self.ball_in_hand &= self._has_ball(action)
 
         if self.render_mode == "human":
             self.render()
