@@ -8,6 +8,7 @@ from gym.spaces import Box
 from trajectory_module import compute_trajectory
 
 from os import path
+from collections import defaultdict
 
 DEFAULT_CAMERA_CONFIG = {
     "trackbodyid": 1,
@@ -227,15 +228,17 @@ class PitcherEnv(MujocoEnv, utils.EzPickle):
 
     def __init__(
         self,
-        forward_reward_weight=1.25,
+        forward_reward_weight=100.0,
         ctrl_cost_weight=0.1,
         healthy_reward=5.0,
-        releasepoint_reward_weight=1.0,
-        time_reward_weight=1.0,
+        releasepoint_reward_weight=100.0,
+        time_reward_weight=100.0,
+        strikezone_reward_weight=100.0,
+        proximity_reward_weight=100.0,
         terminate_when_unhealthy=True,
         healthy_z_range=(1.0, 2.0),
         reset_noise_scale=1e-2,
-        right_foot_shift=0.5,
+        right_foot_shift=0.01,
         exclude_current_positions_from_observation=True,
         **kwargs
     ):
@@ -254,6 +257,8 @@ class PitcherEnv(MujocoEnv, utils.EzPickle):
         self._forward_reward_weight = forward_reward_weight
         self._ctrl_cost_weight = ctrl_cost_weight
         self._healthy_reward = healthy_reward
+        self._strikezone_reward_weight = strikezone_reward_weight
+        self._proximity_reward_weight = proximity_reward_weight
         self._releasepoint_reward_weight = releasepoint_reward_weight
         self._time_reward_weight = time_reward_weight
         self._terminate_when_unhealthy = terminate_when_unhealthy
@@ -266,7 +271,7 @@ class PitcherEnv(MujocoEnv, utils.EzPickle):
             exclude_current_positions_from_observation
         )
 
-        self.ball_in_hand = False
+        self.ball_in_hand = True
 
         if exclude_current_positions_from_observation:
             observation_space = Box(
@@ -303,6 +308,10 @@ class PitcherEnv(MujocoEnv, utils.EzPickle):
     @property
     def right_foot_start(self): 
         return [0.05, 0, 0.1]
+    
+    @property
+    def distance_to_mound(self): 
+        return 4.02
 
     @property
     def healthy_reward(self):
@@ -333,34 +342,33 @@ class PitcherEnv(MujocoEnv, utils.EzPickle):
         # The baseball is assumed to be the position of the right hand, and it is assumed that there is no radial 
         # velocity.
 
-        trans_vel = np.linalg.norm(velo)
-        # Centering around 95 mph, or 42.47 m/s
-        reward = torch.distributions.Normal(42.47)
-        return reward.cdf(trans_vel) * self.releasepoint_reward
+        reward = torch.distributions.Normal(25, 10)
+        return reward.cdf(torch.Tensor([velo[1]])).item() * self._releasepoint_reward_weight
 
     def strikezone_reward(self, final_pos): 
         # We also provide a smaller reward proportional to how close the ball crosses the heart of the plate. 
         pos = [final_pos[-3], final_pos[-1]]
-        reward = torch.distribution.Normal(self.strikezone_center, self.strikezone_dimensions / 2)
-        return reward.log_prob(pos)
+        reward = torch.distributions.Normal(self.strikezone_center, self.strikezone_dimensions / 2)
+        return torch.exp(reward.log_prob(torch.Tensor(pos)).sum()).item() * self._strikezone_reward_weight
 
     def proximity_reward(self, final_pos): 
         # Reward if the baseball reaches the batter/home plate, 60 feet away. This translates to ~4.02 units away
-        # in Cartesian space, and tops out once it does reach. 
-        return min(1, np.exp(4.02 - final_pos[1]))
+        # in Cartesian space, and tops out once it does reach.
+        return np.exp(final_pos[1]) * self._proximity_reward_weight
 
-    def time_reward(self, time): 
+    def time_reward(self, time, final_pos): 
         # The quicker the ball gets to the strike zone, the better. 
         # There is a minimal reward if the ball does not reach the strike zone.
-        return time * self._time_reward_weight
+        if final_pos[1] > self.distance_to_mound: 
+            return np.exp(1 - time) * self._time_reward_weight
+        else: return 0
 
     def windup_cost(self, pos, has_ball): 
         # Make sure the pitcher throws the ball before the right foot leaves the ground.
         dist = np.linalg.norm(pos - self.right_foot_start)
-        if dist > self._right_foot_shift_limit and has_ball: 
+        if dist > self._right_foot_shift_limit and has_ball:
             return 1000
         return 0
-
 
     def control_cost(self, action):
         control_cost = self._ctrl_cost_weight * np.sum(np.square(self.data.ctrl))
@@ -396,25 +404,22 @@ class PitcherEnv(MujocoEnv, utils.EzPickle):
             )
         )
 
-    def _compute_rewards(self, action, x_velocity, x_pos, body_x_velocity): 
-        forward_reward = self._forward_reward_weight * body_x_velocity
-        healthy_reward = self.healthy_reward
+    def _compute_rewards(self, action, x_velocity, x_pos, body_y_velocity): 
+        info = defaultdict(int)
+        info['ForwardRew'] = self._forward_reward_weight * body_y_velocity
+        info['HealthyRew'] = self.healthy_reward
+        if self.ball_in_hand and not self._has_ball(action): 
+            time_elapsed, final_pos, final_velo, _ = compute_trajectory(x_velocity[-3][-3:].tolist(), x_pos[-3].tolist())
+            info['ProxRew'] = self.proximity_reward(final_pos)
+            info['ReleaseRew'] = self.releasepoint_reward(final_velo)
+            info['StrikeRew'] = self.strikezone_reward(final_pos)
+            info['TimeRew'] = self.time_reward(time_elapsed, final_pos)
+            info['FinalPosX'], info['FinalPosY'], info['FinalPosZ'] = final_pos
+            info['FinalVeloX'], info['FinalVeloY'], info['FinalVeloZ'] = final_velo
 
-        release_reward = 0
-        strike_reward = 0
-        time_reward = 0
-        proximity_reward = 0
-        if self.ball_in_hand and not self._has_ball(action):
-            time_elapsed, final_pos, final_velo = compute_trajectory(x_velocity, x_pos)
-            release_reward = self.releasepoint_reward(final_velo)
-            strike_reward = self.strikezone_reward(final_pos)
-            time_reward = self.time_reward(time_elapsed)
-            proximity_reward = self.proximity_reward(final_pos)
-
-        return (forward_reward, healthy_reward, release_reward, strike_reward, time_reward, proximity_reward)
+        return info
 
     def step(self, action):
-        #print(action.size)
         xy_position_before = mass_center(self.model, self.data)
         self.do_simulation(action[:-1], self.frame_skip)
         xy_position_after = mass_center(self.model, self.data)
@@ -425,27 +430,22 @@ class PitcherEnv(MujocoEnv, utils.EzPickle):
         ctrl_cost = self.control_cost(action)
         windup_cost = self.windup_cost(self.data.xpos[6], self._has_ball(action))
 
-        forward_reward, healthy_reward, release_reward, strike_reward, time_reward, proximity_reward = self._compute_rewards(action, self.data.cvel, self.data.xpos, x_velocity)
-        rewards = forward_reward + healthy_reward + release_reward + strike_reward + time_reward + proximity_reward
+        rew_info = self._compute_rewards(action, self.data.cvel, self.data.xpos, y_velocity)
+        rewards = rew_info['ForwardRew'] + rew_info['HealthyRew'] + rew_info['ReleaseRew'] + rew_info['StrikeRew'] + rew_info['TimeRew'] + rew_info['ProxRew']
 
         observation = self._get_obs()
         reward = rewards - ctrl_cost - windup_cost
         terminated = self.terminated
-        info = {
-            "reward_linvel": forward_reward,
-            "reward_quadctrl": -ctrl_cost,
-            "reward_alive": healthy_reward,
+        info = defaultdict(int, {
+            "ControlCost": -ctrl_cost,
             "x_position": xy_position_after[0],
             "y_position": xy_position_after[1],
             "distance_from_origin": np.linalg.norm(xy_position_after, ord=2),
             "x_velocity": x_velocity,
             "y_velocity": y_velocity,
-            "forward_reward": forward_reward,
-            "release_reward": release_reward,
-            "strike_reward": strike_reward,
-            "time_reward": time_reward, 
-            "proximity_reward": proximity_reward
-        }
+            "WindupCost": -windup_cost,
+            **rew_info
+        })
 
         self.ball_in_hand &= self._has_ball(action)
 
@@ -464,6 +464,7 @@ class PitcherEnv(MujocoEnv, utils.EzPickle):
             low=noise_low, high=noise_high, size=self.model.nv
         )
         self.set_state(qpos, qvel)
+        self.ball_in_hand = True
 
         observation = self._get_obs()
         return observation

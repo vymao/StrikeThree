@@ -18,6 +18,7 @@ if __name__ == '__main__':
     parser.add_argument('--epochs', type=int, default=10)
     parser.add_argument('--exp_name', type=str, default='td3')
     parser.add_argument('--log_dir', type=str, default='.')
+    parser.add_argument('--steps_per_epoch', type=int, default=4000)
     args = parser.parse_args()
 
     if args.log_dir == '.': 
@@ -32,4 +33,4 @@ if __name__ == '__main__':
         td3(lambda : gym.make(args.env), actor_critic=MLPActorCritic,
             ac_kwargs=dict(hidden_sizes=[args.hid]*args.l), 
             gamma=args.gamma, seed=args.seed, epochs=args.epochs,
-            logger_kwargs=logger_kwargs)
+            steps_per_epoch=args.steps_per_epoch, logger_kwargs=logger_kwargs)

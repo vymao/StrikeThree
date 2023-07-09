@@ -7,7 +7,7 @@
         "language": "c++",
         "name": "trajectory_module",
         "sources": [
-            "envs/mujoco/trajectory_solver.pyx"
+            "strikethree/envs/mujoco/trajectory_solver.pyx"
         ]
     },
     "module_name": "trajectory_module"
@@ -991,7 +991,7 @@ static const char *__pyx_filename;
 
 
 static const char *__pyx_f[] = {
-  "envs/mujoco/trajectory_solver.pyx",
+  "strikethree/envs/mujoco/trajectory_solver.pyx",
   "array.pxd",
   "type.pxd",
   "bool.pxd",
@@ -1147,6 +1147,81 @@ static CYTHON_INLINE PyObject* __Pyx_PyObject_Call(PyObject *func, PyObject *arg
 #define __Pyx_PyObject_Call(func, arg, kw) PyObject_Call(func, arg, kw)
 #endif
 
+/* ListAppend.proto */
+#if CYTHON_USE_PYLIST_INTERNALS && CYTHON_ASSUME_SAFE_MACROS
+static CYTHON_INLINE int __Pyx_PyList_Append(PyObject* list, PyObject* x) {
+    PyListObject* L = (PyListObject*) list;
+    Py_ssize_t len = Py_SIZE(list);
+    if (likely(L->allocated > len) & likely(len > (L->allocated >> 1))) {
+        Py_INCREF(x);
+        PyList_SET_ITEM(list, len, x);
+        __Pyx_SET_SIZE(list, len + 1);
+        return 0;
+    }
+    return PyList_Append(list, x);
+}
+#else
+#define __Pyx_PyList_Append(L,x) PyList_Append(L,x)
+#endif
+
+/* PyCFunctionFastCall.proto */
+#if CYTHON_FAST_PYCCALL
+static CYTHON_INLINE PyObject *__Pyx_PyCFunction_FastCall(PyObject *func, PyObject **args, Py_ssize_t nargs);
+#else
+#define __Pyx_PyCFunction_FastCall(func, args, nargs)  (assert(0), NULL)
+#endif
+
+/* PyFunctionFastCall.proto */
+#if CYTHON_FAST_PYCALL
+#define __Pyx_PyFunction_FastCall(func, args, nargs)\
+    __Pyx_PyFunction_FastCallDict((func), (args), (nargs), NULL)
+#if 1 || PY_VERSION_HEX < 0x030600B1
+static PyObject *__Pyx_PyFunction_FastCallDict(PyObject *func, PyObject **args, Py_ssize_t nargs, PyObject *kwargs);
+#else
+#define __Pyx_PyFunction_FastCallDict(func, args, nargs, kwargs) _PyFunction_FastCallDict(func, args, nargs, kwargs)
+#endif
+#define __Pyx_BUILD_ASSERT_EXPR(cond)\
+    (sizeof(char [1 - 2*!(cond)]) - 1)
+#ifndef Py_MEMBER_SIZE
+#define Py_MEMBER_SIZE(type, member) sizeof(((type *)0)->member)
+#endif
+#if CYTHON_FAST_PYCALL
+  static size_t __pyx_pyframe_localsplus_offset = 0;
+  #include "frameobject.h"
+#if PY_VERSION_HEX >= 0x030b00a6
+  #ifndef Py_BUILD_CORE
+    #define Py_BUILD_CORE 1
+  #endif
+  #include "internal/pycore_frame.h"
+#endif
+  #define __Pxy_PyFrame_Initialize_Offsets()\
+    ((void)__Pyx_BUILD_ASSERT_EXPR(sizeof(PyFrameObject) == offsetof(PyFrameObject, f_localsplus) + Py_MEMBER_SIZE(PyFrameObject, f_localsplus)),\
+     (void)(__pyx_pyframe_localsplus_offset = ((size_t)PyFrame_Type.tp_basicsize) - Py_MEMBER_SIZE(PyFrameObject, f_localsplus)))
+  #define __Pyx_PyFrame_GetLocalsplus(frame)\
+    (assert(__pyx_pyframe_localsplus_offset), (PyObject **)(((char *)(frame)) + __pyx_pyframe_localsplus_offset))
+#endif // CYTHON_FAST_PYCALL
+#endif
+
+/* PyObjectCall2Args.proto */
+static CYTHON_UNUSED PyObject* __Pyx_PyObject_Call2Args(PyObject* function, PyObject* arg1, PyObject* arg2);
+
+/* PyObjectCallMethO.proto */
+#if CYTHON_COMPILING_IN_CPYTHON
+static CYTHON_INLINE PyObject* __Pyx_PyObject_CallMethO(PyObject *func, PyObject *arg);
+#endif
+
+/* PyObjectCallOneArg.proto */
+static CYTHON_INLINE PyObject* __Pyx_PyObject_CallOneArg(PyObject *func, PyObject *arg);
+
+/* PyObjectGetMethod.proto */
+static int __Pyx_PyObject_GetMethod(PyObject *obj, PyObject *name, PyObject **method);
+
+/* PyObjectCallMethod1.proto */
+static PyObject* __Pyx_PyObject_CallMethod1(PyObject* obj, PyObject* method_name, PyObject* arg);
+
+/* append.proto */
+static CYTHON_INLINE int __Pyx_PyObject_Append(PyObject* L, PyObject* x);
+
 /* GetItemInt.proto */
 #define __Pyx_GetItemInt(o, i, type, is_signed, to_py_func, is_list, wraparound, boundscheck)\
     (__Pyx_fits_Py_ssize_t(i, type, is_signed) ?\
@@ -1168,23 +1243,6 @@ static CYTHON_INLINE PyObject *__Pyx_GetItemInt_Tuple_Fast(PyObject *o, Py_ssize
 static PyObject *__Pyx_GetItemInt_Generic(PyObject *o, PyObject* j);
 static CYTHON_INLINE PyObject *__Pyx_GetItemInt_Fast(PyObject *o, Py_ssize_t i,
                                                      int is_list, int wraparound, int boundscheck);
-
-/* ListAppend.proto */
-#if CYTHON_USE_PYLIST_INTERNALS && CYTHON_ASSUME_SAFE_MACROS
-static CYTHON_INLINE int __Pyx_PyList_Append(PyObject* list, PyObject* x) {
-    PyListObject* L = (PyListObject*) list;
-    Py_ssize_t len = Py_SIZE(list);
-    if (likely(L->allocated > len) & likely(len > (L->allocated >> 1))) {
-        Py_INCREF(x);
-        PyList_SET_ITEM(list, len, x);
-        __Pyx_SET_SIZE(list, len + 1);
-        return 0;
-    }
-    return PyList_Append(list, x);
-}
-#else
-#define __Pyx_PyList_Append(L,x) PyList_Append(L,x)
-#endif
 
 /* TypeImport.proto */
 #ifndef __PYX_HAVE_RT_ImportType_proto_0_29_35
@@ -1377,6 +1435,9 @@ static CYTHON_INLINE int resize_smart(arrayobject *self, Py_ssize_t n) {
 #define __Pyx_HAS_GCC_DIAGNOSTIC
 #endif
 
+/* CIntToPy.proto */
+static CYTHON_INLINE PyObject* __Pyx_PyInt_From_int(int value);
+
 /* CIntFromPy.proto */
 static CYTHON_INLINE long __Pyx_PyInt_As_long(PyObject *);
 
@@ -1500,12 +1561,14 @@ static PyTypeObject *__pyx_ptype_7cpython_5array_array = 0;
 static CYTHON_INLINE int __pyx_f_7cpython_5array_extend_buffer(arrayobject *, char *, Py_ssize_t); /*proto*/
 
 /* Module declarations from 'trajectory_module' */
+static int __pyx_v_17trajectory_module_MAX_ITERATIONS;
 static float __pyx_v_17trajectory_module_rho;
 static float __pyx_v_17trajectory_module_radius;
 static float __pyx_v_17trajectory_module_drag_coef;
 static float __pyx_v_17trajectory_module_area;
 static float __pyx_v_17trajectory_module_mass;
 static float __pyx_v_17trajectory_module_g_const;
+static float __pyx_v_17trajectory_module_lift_coef;
 static float __pyx_v_17trajectory_module_magnus_constant;
 static float __pyx_v_17trajectory_module_drag_constant;
 static float __pyx_v_17trajectory_module_distance_to_home;
@@ -1532,57 +1595,68 @@ static const char __pyx_k_name[] = "__name__";
 static const char __pyx_k_test[] = "__test__";
 static const char __pyx_k_velo[] = "velo";
 static const char __pyx_k_range[] = "range";
+static const char __pyx_k_append[] = "append";
 static const char __pyx_k_lin_pos[] = "lin_pos";
 static const char __pyx_k_ang_velo[] = "ang_velo";
 static const char __pyx_k_lin_velo[] = "lin_velo";
-static const char __pyx_k_delta_pos[] = "delta_pos";
 static const char __pyx_k_final_pos[] = "final_pos";
 static const char __pyx_k_final_velo[] = "final_velo";
+static const char __pyx_k_iterations[] = "iterations";
+static const char __pyx_k_store_vals[] = "store_vals";
+static const char __pyx_k_trajectory[] = "trajectory";
 static const char __pyx_k_MemoryError[] = "MemoryError";
 static const char __pyx_k_starting_pos[] = "starting_pos";
 static const char __pyx_k_time_elapsed[] = "time_elapsed";
 static const char __pyx_k_starting_velo[] = "starting_velo";
+static const char __pyx_k_max_iterations[] = "max_iterations";
 static const char __pyx_k_initial_position[] = "initial_position";
 static const char __pyx_k_trajectory_module[] = "trajectory_module";
 static const char __pyx_k_cline_in_traceback[] = "cline_in_traceback";
 static const char __pyx_k_compute_trajectory[] = "compute_trajectory";
-static const char __pyx_k_envs_mujoco_trajectory_solver_py[] = "envs/mujoco/trajectory_solver.pyx";
+static const char __pyx_k_distance_travelled[] = "distance_travelled";
+static const char __pyx_k_strikethree_envs_mujoco_trajecto[] = "strikethree/envs/mujoco/trajectory_solver.pyx";
 static PyObject *__pyx_n_s_MemoryError;
 static PyObject *__pyx_n_s_acc;
 static PyObject *__pyx_n_s_ang_velo;
+static PyObject *__pyx_n_s_append;
 static PyObject *__pyx_n_s_cline_in_traceback;
 static PyObject *__pyx_n_s_compute_trajectory;
-static PyObject *__pyx_n_s_delta_pos;
-static PyObject *__pyx_kp_s_envs_mujoco_trajectory_solver_py;
+static PyObject *__pyx_n_s_distance_travelled;
 static PyObject *__pyx_n_s_f;
 static PyObject *__pyx_n_s_final_pos;
 static PyObject *__pyx_n_s_final_velo;
 static PyObject *__pyx_n_s_i;
 static PyObject *__pyx_n_s_initial_position;
+static PyObject *__pyx_n_s_iterations;
 static PyObject *__pyx_n_s_lin_pos;
 static PyObject *__pyx_n_s_lin_velo;
 static PyObject *__pyx_n_s_main;
+static PyObject *__pyx_n_s_max_iterations;
 static PyObject *__pyx_n_s_name;
 static PyObject *__pyx_n_s_pos;
 static PyObject *__pyx_n_s_range;
 static PyObject *__pyx_n_s_starting_pos;
 static PyObject *__pyx_n_s_starting_velo;
+static PyObject *__pyx_n_s_store_vals;
+static PyObject *__pyx_kp_s_strikethree_envs_mujoco_trajecto;
 static PyObject *__pyx_n_s_test;
 static PyObject *__pyx_n_s_time_elapsed;
+static PyObject *__pyx_n_s_trajectory;
 static PyObject *__pyx_n_s_trajectory_module;
 static PyObject *__pyx_n_s_velo;
-static PyObject *__pyx_pf_17trajectory_module_compute_trajectory(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_starting_velo, PyObject *__pyx_v_starting_pos); /* proto */
+static PyObject *__pyx_pf_17trajectory_module_compute_trajectory(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_starting_velo, PyObject *__pyx_v_starting_pos, PyObject *__pyx_v_store_vals, PyObject *__pyx_v_max_iterations); /* proto */
 static int __pyx_pf_7cpython_5array_5array___getbuffer__(arrayobject *__pyx_v_self, Py_buffer *__pyx_v_info, CYTHON_UNUSED int __pyx_v_flags); /* proto */
 static void __pyx_pf_7cpython_5array_5array_2__releasebuffer__(CYTHON_UNUSED arrayobject *__pyx_v_self, Py_buffer *__pyx_v_info); /* proto */
-static PyObject *__pyx_tuple_;
-static PyObject *__pyx_codeobj__2;
+static PyObject *__pyx_k_;
+static PyObject *__pyx_tuple__2;
+static PyObject *__pyx_codeobj__3;
 /* Late includes */
 
-/* "envs/mujoco/trajectory_solver.pyx":24
+/* "strikethree/envs/mujoco/trajectory_solver.pyx":27
  * cdef float delta_t = 0.01 # s
  * 
  * cdef float l2_norm(float[3]& vector):             # <<<<<<<<<<<<<<
- *     return (vector[0]**2 + vector[1]**2 + vector[2]**2) ** (1/2)
+ *     return (vector[0]**2 + vector[1]**2 + vector[2]**2)**0.5
  * 
  */
 
@@ -1591,21 +1665,21 @@ static float __pyx_f_17trajectory_module_l2_norm(float *__pyx_v_vector) {
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("l2_norm", 0);
 
-  /* "envs/mujoco/trajectory_solver.pyx":25
+  /* "strikethree/envs/mujoco/trajectory_solver.pyx":28
  * 
  * cdef float l2_norm(float[3]& vector):
- *     return (vector[0]**2 + vector[1]**2 + vector[2]**2) ** (1/2)             # <<<<<<<<<<<<<<
+ *     return (vector[0]**2 + vector[1]**2 + vector[2]**2)**0.5             # <<<<<<<<<<<<<<
  * 
  * cdef void magnus(float[3]& ang_velo, float[3]& lin_velo, float[3]& acc):
  */
-  __pyx_r = powf(((powf((__pyx_v_vector[0]), 2.0) + powf((__pyx_v_vector[1]), 2.0)) + powf((__pyx_v_vector[2]), 2.0)), 0.0);
+  __pyx_r = pow(((double)((powf((__pyx_v_vector[0]), 2.0) + powf((__pyx_v_vector[1]), 2.0)) + powf((__pyx_v_vector[2]), 2.0))), 0.5);
   goto __pyx_L0;
 
-  /* "envs/mujoco/trajectory_solver.pyx":24
+  /* "strikethree/envs/mujoco/trajectory_solver.pyx":27
  * cdef float delta_t = 0.01 # s
  * 
  * cdef float l2_norm(float[3]& vector):             # <<<<<<<<<<<<<<
- *     return (vector[0]**2 + vector[1]**2 + vector[2]**2) ** (1/2)
+ *     return (vector[0]**2 + vector[1]**2 + vector[2]**2)**0.5
  * 
  */
 
@@ -1615,62 +1689,93 @@ static float __pyx_f_17trajectory_module_l2_norm(float *__pyx_v_vector) {
   return __pyx_r;
 }
 
-/* "envs/mujoco/trajectory_solver.pyx":27
- *     return (vector[0]**2 + vector[1]**2 + vector[2]**2) ** (1/2)
+/* "strikethree/envs/mujoco/trajectory_solver.pyx":30
+ *     return (vector[0]**2 + vector[1]**2 + vector[2]**2)**0.5
  * 
  * cdef void magnus(float[3]& ang_velo, float[3]& lin_velo, float[3]& acc):             # <<<<<<<<<<<<<<
- *     acc[0] += ((ang_velo[2] * lin_velo[3]) - (ang_velo[3] * lin_velo[2])) * magnus_constant
- *     acc[1] += ((ang_velo[3] * lin_velo[1]) - (ang_velo[1] * lin_velo[3])) * magnus_constant
+ *     #print("Velo: ", lin_velo[0], lin_velo[1], lin_velo[2])
+ *     cdef float velo_mag = l2_norm(lin_velo)
  */
 
 static void __pyx_f_17trajectory_module_magnus(float *__pyx_v_ang_velo, float *__pyx_v_lin_velo, float *__pyx_v_acc) {
+  float __pyx_v_velo_mag;
+  float __pyx_v_mag_coef;
   __Pyx_RefNannyDeclarations
   long __pyx_t_1;
+  int __pyx_lineno = 0;
+  const char *__pyx_filename = NULL;
+  int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("magnus", 0);
 
-  /* "envs/mujoco/trajectory_solver.pyx":28
- * 
+  /* "strikethree/envs/mujoco/trajectory_solver.pyx":32
  * cdef void magnus(float[3]& ang_velo, float[3]& lin_velo, float[3]& acc):
- *     acc[0] += ((ang_velo[2] * lin_velo[3]) - (ang_velo[3] * lin_velo[2])) * magnus_constant             # <<<<<<<<<<<<<<
- *     acc[1] += ((ang_velo[3] * lin_velo[1]) - (ang_velo[1] * lin_velo[3])) * magnus_constant
- *     acc[2] += ((ang_velo[1] * lin_velo[2]) - (ang_velo[2] * lin_velo[1])) * magnus_constant
+ *     #print("Velo: ", lin_velo[0], lin_velo[1], lin_velo[2])
+ *     cdef float velo_mag = l2_norm(lin_velo)             # <<<<<<<<<<<<<<
+ *     cdef float mag_coef = magnus_constant * (velo_mag / spin_rate)
+ * 
+ */
+  __pyx_v_velo_mag = __pyx_f_17trajectory_module_l2_norm(__pyx_v_lin_velo);
+
+  /* "strikethree/envs/mujoco/trajectory_solver.pyx":33
+ *     #print("Velo: ", lin_velo[0], lin_velo[1], lin_velo[2])
+ *     cdef float velo_mag = l2_norm(lin_velo)
+ *     cdef float mag_coef = magnus_constant * (velo_mag / spin_rate)             # <<<<<<<<<<<<<<
+ * 
+ * 
+ */
+  if (unlikely(__pyx_v_17trajectory_module_spin_rate == 0)) {
+    PyErr_SetString(PyExc_ZeroDivisionError, "float division");
+    __PYX_ERR(0, 33, __pyx_L1_error)
+  }
+  __pyx_v_mag_coef = (__pyx_v_17trajectory_module_magnus_constant * (__pyx_v_velo_mag / __pyx_v_17trajectory_module_spin_rate));
+
+  /* "strikethree/envs/mujoco/trajectory_solver.pyx":36
+ * 
+ * 
+ *     acc[0] += ((ang_velo[1] * lin_velo[2]) - (ang_velo[2] * lin_velo[1])) * mag_coef             # <<<<<<<<<<<<<<
+ *     acc[1] += ((ang_velo[2] * lin_velo[0]) - (ang_velo[0] * lin_velo[2])) * mag_coef
+ *     acc[2] += ((ang_velo[0] * lin_velo[1]) - (ang_velo[1] * lin_velo[0])) * mag_coef
  */
   __pyx_t_1 = 0;
-  (__pyx_v_acc[__pyx_t_1]) = ((__pyx_v_acc[__pyx_t_1]) + ((((__pyx_v_ang_velo[2]) * (__pyx_v_lin_velo[3])) - ((__pyx_v_ang_velo[3]) * (__pyx_v_lin_velo[2]))) * __pyx_v_17trajectory_module_magnus_constant));
+  (__pyx_v_acc[__pyx_t_1]) = ((__pyx_v_acc[__pyx_t_1]) + ((((__pyx_v_ang_velo[1]) * (__pyx_v_lin_velo[2])) - ((__pyx_v_ang_velo[2]) * (__pyx_v_lin_velo[1]))) * __pyx_v_mag_coef));
 
-  /* "envs/mujoco/trajectory_solver.pyx":29
- * cdef void magnus(float[3]& ang_velo, float[3]& lin_velo, float[3]& acc):
- *     acc[0] += ((ang_velo[2] * lin_velo[3]) - (ang_velo[3] * lin_velo[2])) * magnus_constant
- *     acc[1] += ((ang_velo[3] * lin_velo[1]) - (ang_velo[1] * lin_velo[3])) * magnus_constant             # <<<<<<<<<<<<<<
- *     acc[2] += ((ang_velo[1] * lin_velo[2]) - (ang_velo[2] * lin_velo[1])) * magnus_constant
+  /* "strikethree/envs/mujoco/trajectory_solver.pyx":37
+ * 
+ *     acc[0] += ((ang_velo[1] * lin_velo[2]) - (ang_velo[2] * lin_velo[1])) * mag_coef
+ *     acc[1] += ((ang_velo[2] * lin_velo[0]) - (ang_velo[0] * lin_velo[2])) * mag_coef             # <<<<<<<<<<<<<<
+ *     acc[2] += ((ang_velo[0] * lin_velo[1]) - (ang_velo[1] * lin_velo[0])) * mag_coef
  * 
  */
   __pyx_t_1 = 1;
-  (__pyx_v_acc[__pyx_t_1]) = ((__pyx_v_acc[__pyx_t_1]) + ((((__pyx_v_ang_velo[3]) * (__pyx_v_lin_velo[1])) - ((__pyx_v_ang_velo[1]) * (__pyx_v_lin_velo[3]))) * __pyx_v_17trajectory_module_magnus_constant));
+  (__pyx_v_acc[__pyx_t_1]) = ((__pyx_v_acc[__pyx_t_1]) + ((((__pyx_v_ang_velo[2]) * (__pyx_v_lin_velo[0])) - ((__pyx_v_ang_velo[0]) * (__pyx_v_lin_velo[2]))) * __pyx_v_mag_coef));
 
-  /* "envs/mujoco/trajectory_solver.pyx":30
- *     acc[0] += ((ang_velo[2] * lin_velo[3]) - (ang_velo[3] * lin_velo[2])) * magnus_constant
- *     acc[1] += ((ang_velo[3] * lin_velo[1]) - (ang_velo[1] * lin_velo[3])) * magnus_constant
- *     acc[2] += ((ang_velo[1] * lin_velo[2]) - (ang_velo[2] * lin_velo[1])) * magnus_constant             # <<<<<<<<<<<<<<
+  /* "strikethree/envs/mujoco/trajectory_solver.pyx":38
+ *     acc[0] += ((ang_velo[1] * lin_velo[2]) - (ang_velo[2] * lin_velo[1])) * mag_coef
+ *     acc[1] += ((ang_velo[2] * lin_velo[0]) - (ang_velo[0] * lin_velo[2])) * mag_coef
+ *     acc[2] += ((ang_velo[0] * lin_velo[1]) - (ang_velo[1] * lin_velo[0])) * mag_coef             # <<<<<<<<<<<<<<
  * 
  * """
  */
   __pyx_t_1 = 2;
-  (__pyx_v_acc[__pyx_t_1]) = ((__pyx_v_acc[__pyx_t_1]) + ((((__pyx_v_ang_velo[1]) * (__pyx_v_lin_velo[2])) - ((__pyx_v_ang_velo[2]) * (__pyx_v_lin_velo[1]))) * __pyx_v_17trajectory_module_magnus_constant));
+  (__pyx_v_acc[__pyx_t_1]) = ((__pyx_v_acc[__pyx_t_1]) + ((((__pyx_v_ang_velo[0]) * (__pyx_v_lin_velo[1])) - ((__pyx_v_ang_velo[1]) * (__pyx_v_lin_velo[0]))) * __pyx_v_mag_coef));
 
-  /* "envs/mujoco/trajectory_solver.pyx":27
- *     return (vector[0]**2 + vector[1]**2 + vector[2]**2) ** (1/2)
+  /* "strikethree/envs/mujoco/trajectory_solver.pyx":30
+ *     return (vector[0]**2 + vector[1]**2 + vector[2]**2)**0.5
  * 
  * cdef void magnus(float[3]& ang_velo, float[3]& lin_velo, float[3]& acc):             # <<<<<<<<<<<<<<
- *     acc[0] += ((ang_velo[2] * lin_velo[3]) - (ang_velo[3] * lin_velo[2])) * magnus_constant
- *     acc[1] += ((ang_velo[3] * lin_velo[1]) - (ang_velo[1] * lin_velo[3])) * magnus_constant
+ *     #print("Velo: ", lin_velo[0], lin_velo[1], lin_velo[2])
+ *     cdef float velo_mag = l2_norm(lin_velo)
  */
 
   /* function exit code */
+  goto __pyx_L0;
+  __pyx_L1_error:;
+  __Pyx_WriteUnraisable("trajectory_module.magnus", __pyx_clineno, __pyx_lineno, __pyx_filename, 1, 0);
+  __pyx_L0:;
   __Pyx_RefNannyFinishContext();
 }
 
-/* "envs/mujoco/trajectory_solver.pyx":38
+/* "strikethree/envs/mujoco/trajectory_solver.pyx":46
  * """
  * 
  * cdef void drag(float[3]& lin_velo, float[3]& acc):             # <<<<<<<<<<<<<<
@@ -1692,7 +1797,7 @@ static void __pyx_f_17trajectory_module_drag(float *__pyx_v_lin_velo, float *__p
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("drag", 0);
 
-  /* "envs/mujoco/trajectory_solver.pyx":39
+  /* "strikethree/envs/mujoco/trajectory_solver.pyx":47
  * 
  * cdef void drag(float[3]& lin_velo, float[3]& acc):
  *     cdef float norm = l2_norm(lin_velo)             # <<<<<<<<<<<<<<
@@ -1701,19 +1806,19 @@ static void __pyx_f_17trajectory_module_drag(float *__pyx_v_lin_velo, float *__p
  */
   __pyx_v_norm = __pyx_f_17trajectory_module_l2_norm(__pyx_v_lin_velo);
 
-  /* "envs/mujoco/trajectory_solver.pyx":40
+  /* "strikethree/envs/mujoco/trajectory_solver.pyx":48
  * cdef void drag(float[3]& lin_velo, float[3]& acc):
  *     cdef float norm = l2_norm(lin_velo)
  *     constant = -drag_constant * norm             # <<<<<<<<<<<<<<
  *     acc[0] += constant * lin_velo[0]
  *     acc[1] += constant * lin_velo[1]
  */
-  __pyx_t_1 = PyFloat_FromDouble(((-__pyx_v_17trajectory_module_drag_constant) * __pyx_v_norm)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 40, __pyx_L1_error)
+  __pyx_t_1 = PyFloat_FromDouble(((-__pyx_v_17trajectory_module_drag_constant) * __pyx_v_norm)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 48, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_v_constant = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "envs/mujoco/trajectory_solver.pyx":41
+  /* "strikethree/envs/mujoco/trajectory_solver.pyx":49
  *     cdef float norm = l2_norm(lin_velo)
  *     constant = -drag_constant * norm
  *     acc[0] += constant * lin_velo[0]             # <<<<<<<<<<<<<<
@@ -1721,22 +1826,22 @@ static void __pyx_f_17trajectory_module_drag(float *__pyx_v_lin_velo, float *__p
  *     acc[2] += constant * lin_velo[2]
  */
   __pyx_t_2 = 0;
-  __pyx_t_1 = PyFloat_FromDouble((__pyx_v_acc[__pyx_t_2])); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 41, __pyx_L1_error)
+  __pyx_t_1 = PyFloat_FromDouble((__pyx_v_acc[__pyx_t_2])); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 49, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_3 = PyFloat_FromDouble((__pyx_v_lin_velo[0])); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 41, __pyx_L1_error)
+  __pyx_t_3 = PyFloat_FromDouble((__pyx_v_lin_velo[0])); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 49, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_4 = PyNumber_Multiply(__pyx_v_constant, __pyx_t_3); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 41, __pyx_L1_error)
+  __pyx_t_4 = PyNumber_Multiply(__pyx_v_constant, __pyx_t_3); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 49, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_3 = PyNumber_InPlaceAdd(__pyx_t_1, __pyx_t_4); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 41, __pyx_L1_error)
+  __pyx_t_3 = PyNumber_InPlaceAdd(__pyx_t_1, __pyx_t_4); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 49, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_5 = __pyx_PyFloat_AsFloat(__pyx_t_3); if (unlikely((__pyx_t_5 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 41, __pyx_L1_error)
+  __pyx_t_5 = __pyx_PyFloat_AsFloat(__pyx_t_3); if (unlikely((__pyx_t_5 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 49, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   (__pyx_v_acc[__pyx_t_2]) = __pyx_t_5;
 
-  /* "envs/mujoco/trajectory_solver.pyx":42
+  /* "strikethree/envs/mujoco/trajectory_solver.pyx":50
  *     constant = -drag_constant * norm
  *     acc[0] += constant * lin_velo[0]
  *     acc[1] += constant * lin_velo[1]             # <<<<<<<<<<<<<<
@@ -1744,22 +1849,22 @@ static void __pyx_f_17trajectory_module_drag(float *__pyx_v_lin_velo, float *__p
  * 
  */
   __pyx_t_2 = 1;
-  __pyx_t_3 = PyFloat_FromDouble((__pyx_v_acc[__pyx_t_2])); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 42, __pyx_L1_error)
+  __pyx_t_3 = PyFloat_FromDouble((__pyx_v_acc[__pyx_t_2])); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 50, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_4 = PyFloat_FromDouble((__pyx_v_lin_velo[1])); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 42, __pyx_L1_error)
+  __pyx_t_4 = PyFloat_FromDouble((__pyx_v_lin_velo[1])); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 50, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_1 = PyNumber_Multiply(__pyx_v_constant, __pyx_t_4); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 42, __pyx_L1_error)
+  __pyx_t_1 = PyNumber_Multiply(__pyx_v_constant, __pyx_t_4); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 50, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_4 = PyNumber_InPlaceAdd(__pyx_t_3, __pyx_t_1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 42, __pyx_L1_error)
+  __pyx_t_4 = PyNumber_InPlaceAdd(__pyx_t_3, __pyx_t_1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 50, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_5 = __pyx_PyFloat_AsFloat(__pyx_t_4); if (unlikely((__pyx_t_5 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 42, __pyx_L1_error)
+  __pyx_t_5 = __pyx_PyFloat_AsFloat(__pyx_t_4); if (unlikely((__pyx_t_5 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 50, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   (__pyx_v_acc[__pyx_t_2]) = __pyx_t_5;
 
-  /* "envs/mujoco/trajectory_solver.pyx":43
+  /* "strikethree/envs/mujoco/trajectory_solver.pyx":51
  *     acc[0] += constant * lin_velo[0]
  *     acc[1] += constant * lin_velo[1]
  *     acc[2] += constant * lin_velo[2]             # <<<<<<<<<<<<<<
@@ -1767,22 +1872,22 @@ static void __pyx_f_17trajectory_module_drag(float *__pyx_v_lin_velo, float *__p
  * cdef void gravity(float[3]& acc):
  */
   __pyx_t_2 = 2;
-  __pyx_t_4 = PyFloat_FromDouble((__pyx_v_acc[__pyx_t_2])); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 43, __pyx_L1_error)
+  __pyx_t_4 = PyFloat_FromDouble((__pyx_v_acc[__pyx_t_2])); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 51, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_1 = PyFloat_FromDouble((__pyx_v_lin_velo[2])); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 43, __pyx_L1_error)
+  __pyx_t_1 = PyFloat_FromDouble((__pyx_v_lin_velo[2])); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 51, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_3 = PyNumber_Multiply(__pyx_v_constant, __pyx_t_1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 43, __pyx_L1_error)
+  __pyx_t_3 = PyNumber_Multiply(__pyx_v_constant, __pyx_t_1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 51, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = PyNumber_InPlaceAdd(__pyx_t_4, __pyx_t_3); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 43, __pyx_L1_error)
+  __pyx_t_1 = PyNumber_InPlaceAdd(__pyx_t_4, __pyx_t_3); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 51, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_5 = __pyx_PyFloat_AsFloat(__pyx_t_1); if (unlikely((__pyx_t_5 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 43, __pyx_L1_error)
+  __pyx_t_5 = __pyx_PyFloat_AsFloat(__pyx_t_1); if (unlikely((__pyx_t_5 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 51, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   (__pyx_v_acc[__pyx_t_2]) = __pyx_t_5;
 
-  /* "envs/mujoco/trajectory_solver.pyx":38
+  /* "strikethree/envs/mujoco/trajectory_solver.pyx":46
  * """
  * 
  * cdef void drag(float[3]& lin_velo, float[3]& acc):             # <<<<<<<<<<<<<<
@@ -1802,7 +1907,7 @@ static void __pyx_f_17trajectory_module_drag(float *__pyx_v_lin_velo, float *__p
   __Pyx_RefNannyFinishContext();
 }
 
-/* "envs/mujoco/trajectory_solver.pyx":45
+/* "strikethree/envs/mujoco/trajectory_solver.pyx":53
  *     acc[2] += constant * lin_velo[2]
  * 
  * cdef void gravity(float[3]& acc):             # <<<<<<<<<<<<<<
@@ -1815,7 +1920,7 @@ static void __pyx_f_17trajectory_module_gravity(float *__pyx_v_acc) {
   long __pyx_t_1;
   __Pyx_RefNannySetupContext("gravity", 0);
 
-  /* "envs/mujoco/trajectory_solver.pyx":46
+  /* "strikethree/envs/mujoco/trajectory_solver.pyx":54
  * 
  * cdef void gravity(float[3]& acc):
  *     acc[2] += -mass * g_const             # <<<<<<<<<<<<<<
@@ -1825,7 +1930,7 @@ static void __pyx_f_17trajectory_module_gravity(float *__pyx_v_acc) {
   __pyx_t_1 = 2;
   (__pyx_v_acc[__pyx_t_1]) = ((__pyx_v_acc[__pyx_t_1]) + ((-__pyx_v_17trajectory_module_mass) * __pyx_v_17trajectory_module_g_const));
 
-  /* "envs/mujoco/trajectory_solver.pyx":45
+  /* "strikethree/envs/mujoco/trajectory_solver.pyx":53
  *     acc[2] += constant * lin_velo[2]
  * 
  * cdef void gravity(float[3]& acc):             # <<<<<<<<<<<<<<
@@ -1837,7 +1942,7 @@ static void __pyx_f_17trajectory_module_gravity(float *__pyx_v_acc) {
   __Pyx_RefNannyFinishContext();
 }
 
-/* "envs/mujoco/trajectory_solver.pyx":48
+/* "strikethree/envs/mujoco/trajectory_solver.pyx":56
  *     acc[2] += -mass * g_const
  * 
  * cdef void step(float[3]& ang_velo, float[3]& lin_velo, float[3]& acc, float[3]& lin_pos):             # <<<<<<<<<<<<<<
@@ -1855,7 +1960,7 @@ static void __pyx_f_17trajectory_module_step(float *__pyx_v_ang_velo, float *__p
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("step", 0);
 
-  /* "envs/mujoco/trajectory_solver.pyx":49
+  /* "strikethree/envs/mujoco/trajectory_solver.pyx":57
  * 
  * cdef void step(float[3]& ang_velo, float[3]& lin_velo, float[3]& acc, float[3]& lin_pos):
  *     magnus(ang_velo, lin_velo, acc)             # <<<<<<<<<<<<<<
@@ -1864,27 +1969,27 @@ static void __pyx_f_17trajectory_module_step(float *__pyx_v_ang_velo, float *__p
  */
   __pyx_f_17trajectory_module_magnus(__pyx_v_ang_velo, __pyx_v_lin_velo, __pyx_v_acc);
 
-  /* "envs/mujoco/trajectory_solver.pyx":50
+  /* "strikethree/envs/mujoco/trajectory_solver.pyx":58
  * cdef void step(float[3]& ang_velo, float[3]& lin_velo, float[3]& acc, float[3]& lin_pos):
  *     magnus(ang_velo, lin_velo, acc)
  *     drag(lin_velo, acc)             # <<<<<<<<<<<<<<
  *     gravity(acc)
- * 
+ *     for i in range(3):
  */
   __pyx_f_17trajectory_module_drag(__pyx_v_lin_velo, __pyx_v_acc);
 
-  /* "envs/mujoco/trajectory_solver.pyx":51
+  /* "strikethree/envs/mujoco/trajectory_solver.pyx":59
  *     magnus(ang_velo, lin_velo, acc)
  *     drag(lin_velo, acc)
  *     gravity(acc)             # <<<<<<<<<<<<<<
- * 
  *     for i in range(3):
+ *         acc[i] /= mass
  */
   __pyx_f_17trajectory_module_gravity(__pyx_v_acc);
 
-  /* "envs/mujoco/trajectory_solver.pyx":53
+  /* "strikethree/envs/mujoco/trajectory_solver.pyx":60
+ *     drag(lin_velo, acc)
  *     gravity(acc)
- * 
  *     for i in range(3):             # <<<<<<<<<<<<<<
  *         acc[i] /= mass
  *         lin_pos[i] += (lin_velo[i] * delta_t) + (0.5 * acc[i] * delta_t**2)
@@ -1892,8 +1997,8 @@ static void __pyx_f_17trajectory_module_step(float *__pyx_v_ang_velo, float *__p
   for (__pyx_t_1 = 0; __pyx_t_1 < 3; __pyx_t_1+=1) {
     __pyx_v_i = __pyx_t_1;
 
-    /* "envs/mujoco/trajectory_solver.pyx":54
- * 
+    /* "strikethree/envs/mujoco/trajectory_solver.pyx":61
+ *     gravity(acc)
  *     for i in range(3):
  *         acc[i] /= mass             # <<<<<<<<<<<<<<
  *         lin_pos[i] += (lin_velo[i] * delta_t) + (0.5 * acc[i] * delta_t**2)
@@ -1902,11 +2007,11 @@ static void __pyx_f_17trajectory_module_step(float *__pyx_v_ang_velo, float *__p
     __pyx_t_2 = __pyx_v_i;
     if (unlikely(__pyx_v_17trajectory_module_mass == 0)) {
       PyErr_SetString(PyExc_ZeroDivisionError, "float division");
-      __PYX_ERR(0, 54, __pyx_L1_error)
+      __PYX_ERR(0, 61, __pyx_L1_error)
     }
     (__pyx_v_acc[__pyx_t_2]) = ((__pyx_v_acc[__pyx_t_2]) / __pyx_v_17trajectory_module_mass);
 
-    /* "envs/mujoco/trajectory_solver.pyx":55
+    /* "strikethree/envs/mujoco/trajectory_solver.pyx":62
  *     for i in range(3):
  *         acc[i] /= mass
  *         lin_pos[i] += (lin_velo[i] * delta_t) + (0.5 * acc[i] * delta_t**2)             # <<<<<<<<<<<<<<
@@ -1916,18 +2021,18 @@ static void __pyx_f_17trajectory_module_step(float *__pyx_v_ang_velo, float *__p
     __pyx_t_2 = __pyx_v_i;
     (__pyx_v_lin_pos[__pyx_t_2]) = ((__pyx_v_lin_pos[__pyx_t_2]) + (((__pyx_v_lin_velo[__pyx_v_i]) * __pyx_v_17trajectory_module_delta_t) + ((0.5 * (__pyx_v_acc[__pyx_v_i])) * powf(__pyx_v_17trajectory_module_delta_t, 2.0))));
 
-    /* "envs/mujoco/trajectory_solver.pyx":56
+    /* "strikethree/envs/mujoco/trajectory_solver.pyx":63
  *         acc[i] /= mass
  *         lin_pos[i] += (lin_velo[i] * delta_t) + (0.5 * acc[i] * delta_t**2)
  *         lin_velo[i] += acc[i] * delta_t             # <<<<<<<<<<<<<<
  * 
- * def compute_trajectory(list starting_velo, list starting_pos):
+ *     #print("Position: ", lin_pos[0], ',', lin_pos[1], ',', lin_pos[2])
  */
     __pyx_t_2 = __pyx_v_i;
     (__pyx_v_lin_velo[__pyx_t_2]) = ((__pyx_v_lin_velo[__pyx_t_2]) + ((__pyx_v_acc[__pyx_v_i]) * __pyx_v_17trajectory_module_delta_t));
   }
 
-  /* "envs/mujoco/trajectory_solver.pyx":48
+  /* "strikethree/envs/mujoco/trajectory_solver.pyx":56
  *     acc[2] += -mass * g_const
  * 
  * cdef void step(float[3]& ang_velo, float[3]& lin_velo, float[3]& acc, float[3]& lin_pos):             # <<<<<<<<<<<<<<
@@ -1943,10 +2048,10 @@ static void __pyx_f_17trajectory_module_step(float *__pyx_v_ang_velo, float *__p
   __Pyx_RefNannyFinishContext();
 }
 
-/* "envs/mujoco/trajectory_solver.pyx":58
- *         lin_velo[i] += acc[i] * delta_t
+/* "strikethree/envs/mujoco/trajectory_solver.pyx":67
+ *     #print("Position: ", lin_pos[0], ',', lin_pos[1], ',', lin_pos[2])
  * 
- * def compute_trajectory(list starting_velo, list starting_pos):             # <<<<<<<<<<<<<<
+ * def compute_trajectory(list starting_velo, list starting_pos, store_vals=False, max_iterations=MAX_ITERATIONS):             # <<<<<<<<<<<<<<
  *     """
  *     This function (and associated functions) numerically integrates the kinematic equations, accounting for drag, gravitational, and magnus forces on
  */
@@ -1958,6 +2063,8 @@ static PyMethodDef __pyx_mdef_17trajectory_module_1compute_trajectory = {"comput
 static PyObject *__pyx_pw_17trajectory_module_1compute_trajectory(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_starting_velo = 0;
   PyObject *__pyx_v_starting_pos = 0;
+  PyObject *__pyx_v_store_vals = 0;
+  PyObject *__pyx_v_max_iterations = 0;
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
@@ -1965,12 +2072,18 @@ static PyObject *__pyx_pw_17trajectory_module_1compute_trajectory(PyObject *__py
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("compute_trajectory (wrapper)", 0);
   {
-    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_starting_velo,&__pyx_n_s_starting_pos,0};
-    PyObject* values[2] = {0,0};
+    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_starting_velo,&__pyx_n_s_starting_pos,&__pyx_n_s_store_vals,&__pyx_n_s_max_iterations,0};
+    PyObject* values[4] = {0,0,0,0};
+    values[2] = ((PyObject *)Py_False);
+    values[3] = __pyx_k_;
     if (unlikely(__pyx_kwds)) {
       Py_ssize_t kw_args;
       const Py_ssize_t pos_args = PyTuple_GET_SIZE(__pyx_args);
       switch (pos_args) {
+        case  4: values[3] = PyTuple_GET_ITEM(__pyx_args, 3);
+        CYTHON_FALLTHROUGH;
+        case  3: values[2] = PyTuple_GET_ITEM(__pyx_args, 2);
+        CYTHON_FALLTHROUGH;
         case  2: values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
         CYTHON_FALLTHROUGH;
         case  1: values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
@@ -1987,32 +2100,52 @@ static PyObject *__pyx_pw_17trajectory_module_1compute_trajectory(PyObject *__py
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_starting_pos)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("compute_trajectory", 1, 2, 2, 1); __PYX_ERR(0, 58, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("compute_trajectory", 0, 2, 4, 1); __PYX_ERR(0, 67, __pyx_L3_error)
+        }
+        CYTHON_FALLTHROUGH;
+        case  2:
+        if (kw_args > 0) {
+          PyObject* value = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_store_vals);
+          if (value) { values[2] = value; kw_args--; }
+        }
+        CYTHON_FALLTHROUGH;
+        case  3:
+        if (kw_args > 0) {
+          PyObject* value = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_max_iterations);
+          if (value) { values[3] = value; kw_args--; }
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "compute_trajectory") < 0)) __PYX_ERR(0, 58, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "compute_trajectory") < 0)) __PYX_ERR(0, 67, __pyx_L3_error)
       }
-    } else if (PyTuple_GET_SIZE(__pyx_args) != 2) {
-      goto __pyx_L5_argtuple_error;
     } else {
-      values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
-      values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
+      switch (PyTuple_GET_SIZE(__pyx_args)) {
+        case  4: values[3] = PyTuple_GET_ITEM(__pyx_args, 3);
+        CYTHON_FALLTHROUGH;
+        case  3: values[2] = PyTuple_GET_ITEM(__pyx_args, 2);
+        CYTHON_FALLTHROUGH;
+        case  2: values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
+        values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
+        break;
+        default: goto __pyx_L5_argtuple_error;
+      }
     }
     __pyx_v_starting_velo = ((PyObject*)values[0]);
     __pyx_v_starting_pos = ((PyObject*)values[1]);
+    __pyx_v_store_vals = values[2];
+    __pyx_v_max_iterations = values[3];
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("compute_trajectory", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 58, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("compute_trajectory", 0, 2, 4, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 67, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("trajectory_module.compute_trajectory", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_starting_velo), (&PyList_Type), 1, "starting_velo", 1))) __PYX_ERR(0, 58, __pyx_L1_error)
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_starting_pos), (&PyList_Type), 1, "starting_pos", 1))) __PYX_ERR(0, 58, __pyx_L1_error)
-  __pyx_r = __pyx_pf_17trajectory_module_compute_trajectory(__pyx_self, __pyx_v_starting_velo, __pyx_v_starting_pos);
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_starting_velo), (&PyList_Type), 1, "starting_velo", 1))) __PYX_ERR(0, 67, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_starting_pos), (&PyList_Type), 1, "starting_pos", 1))) __PYX_ERR(0, 67, __pyx_L1_error)
+  __pyx_r = __pyx_pf_17trajectory_module_compute_trajectory(__pyx_self, __pyx_v_starting_velo, __pyx_v_starting_pos, __pyx_v_store_vals, __pyx_v_max_iterations);
 
   /* function exit code */
   goto __pyx_L0;
@@ -2023,16 +2156,18 @@ static PyObject *__pyx_pw_17trajectory_module_1compute_trajectory(PyObject *__py
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_17trajectory_module_compute_trajectory(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_starting_velo, PyObject *__pyx_v_starting_pos) {
+static PyObject *__pyx_pf_17trajectory_module_compute_trajectory(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_starting_velo, PyObject *__pyx_v_starting_pos, PyObject *__pyx_v_store_vals, PyObject *__pyx_v_max_iterations) {
   float __pyx_v_acc[3];
   float __pyx_v_ang_velo[3];
-  float __pyx_v_delta_pos[3];
+  float __pyx_v_distance_travelled;
   float __pyx_v_time_elapsed;
   arrayobject *__pyx_v_pos = 0;
   float __pyx_v_lin_pos[3];
   arrayobject *__pyx_v_velo = 0;
   float __pyx_v_lin_velo[3];
   float __pyx_v_initial_position[3];
+  PyObject *__pyx_v_trajectory = NULL;
+  int __pyx_v_iterations;
   long __pyx_v_i;
   PyObject *__pyx_v_final_pos = NULL;
   PyObject *__pyx_v_final_velo = NULL;
@@ -2040,336 +2175,410 @@ static PyObject *__pyx_pf_17trajectory_module_compute_trajectory(CYTHON_UNUSED P
   __Pyx_RefNannyDeclarations
   float __pyx_t_1[3];
   float __pyx_t_2[3];
-  float __pyx_t_3[3];
+  PyObject *__pyx_t_3 = NULL;
   PyObject *__pyx_t_4 = NULL;
-  PyObject *__pyx_t_5 = NULL;
-  float *__pyx_t_6;
-  int __pyx_t_7;
-  long __pyx_t_8;
-  PyObject *__pyx_t_9 = NULL;
-  float __pyx_t_10;
+  float *__pyx_t_5;
+  PyObject *__pyx_t_6 = NULL;
+  PyObject *__pyx_t_7 = NULL;
+  int __pyx_t_8;
+  int __pyx_t_9;
+  long __pyx_t_10;
   int __pyx_t_11;
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("compute_trajectory", 0);
 
-  /* "envs/mujoco/trajectory_solver.pyx":63
+  /* "strikethree/envs/mujoco/trajectory_solver.pyx":72
  *     a baseball.
  *     """
  *     cdef float[3] acc = [0, 0, 0]             # <<<<<<<<<<<<<<
- *     cdef float[3] ang_velo = [0, spin_rate, 0]
- *     cdef float[3] delta_pos = [0, 0, 0]
+ *     cdef float[3] ang_velo = [spin_rate, 0, 0]
+ *     cdef float distance_travelled = 0
  */
   __pyx_t_1[0] = 0.0;
   __pyx_t_1[1] = 0.0;
   __pyx_t_1[2] = 0.0;
   memcpy(&(__pyx_v_acc[0]), __pyx_t_1, sizeof(__pyx_v_acc[0]) * (3));
 
-  /* "envs/mujoco/trajectory_solver.pyx":64
+  /* "strikethree/envs/mujoco/trajectory_solver.pyx":73
  *     """
  *     cdef float[3] acc = [0, 0, 0]
- *     cdef float[3] ang_velo = [0, spin_rate, 0]             # <<<<<<<<<<<<<<
- *     cdef float[3] delta_pos = [0, 0, 0]
+ *     cdef float[3] ang_velo = [spin_rate, 0, 0]             # <<<<<<<<<<<<<<
+ *     cdef float distance_travelled = 0
  *     cdef float time_elapsed = 0
  */
-  __pyx_t_2[0] = 0.0;
-  __pyx_t_2[1] = __pyx_v_17trajectory_module_spin_rate;
+  __pyx_t_2[0] = __pyx_v_17trajectory_module_spin_rate;
+  __pyx_t_2[1] = 0.0;
   __pyx_t_2[2] = 0.0;
   memcpy(&(__pyx_v_ang_velo[0]), __pyx_t_2, sizeof(__pyx_v_ang_velo[0]) * (3));
 
-  /* "envs/mujoco/trajectory_solver.pyx":65
+  /* "strikethree/envs/mujoco/trajectory_solver.pyx":74
  *     cdef float[3] acc = [0, 0, 0]
- *     cdef float[3] ang_velo = [0, spin_rate, 0]
- *     cdef float[3] delta_pos = [0, 0, 0]             # <<<<<<<<<<<<<<
+ *     cdef float[3] ang_velo = [spin_rate, 0, 0]
+ *     cdef float distance_travelled = 0             # <<<<<<<<<<<<<<
  *     cdef float time_elapsed = 0
  * 
  */
-  __pyx_t_3[0] = 0.0;
-  __pyx_t_3[1] = 0.0;
-  __pyx_t_3[2] = 0.0;
-  memcpy(&(__pyx_v_delta_pos[0]), __pyx_t_3, sizeof(__pyx_v_delta_pos[0]) * (3));
+  __pyx_v_distance_travelled = 0.0;
 
-  /* "envs/mujoco/trajectory_solver.pyx":66
- *     cdef float[3] ang_velo = [0, spin_rate, 0]
- *     cdef float[3] delta_pos = [0, 0, 0]
+  /* "strikethree/envs/mujoco/trajectory_solver.pyx":75
+ *     cdef float[3] ang_velo = [spin_rate, 0, 0]
+ *     cdef float distance_travelled = 0
  *     cdef float time_elapsed = 0             # <<<<<<<<<<<<<<
  * 
  *     cdef array.array pos = array.array('f', starting_pos)
  */
   __pyx_v_time_elapsed = 0.0;
 
-  /* "envs/mujoco/trajectory_solver.pyx":68
+  /* "strikethree/envs/mujoco/trajectory_solver.pyx":77
  *     cdef float time_elapsed = 0
  * 
  *     cdef array.array pos = array.array('f', starting_pos)             # <<<<<<<<<<<<<<
  *     cdef float[3] lin_pos = pos.data.as_floats
  * 
  */
-  __pyx_t_4 = PyTuple_New(2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 68, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_4);
+  __pyx_t_3 = PyTuple_New(2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 77, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_3);
   __Pyx_INCREF(__pyx_n_s_f);
   __Pyx_GIVEREF(__pyx_n_s_f);
-  PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_n_s_f);
+  PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_n_s_f);
   __Pyx_INCREF(__pyx_v_starting_pos);
   __Pyx_GIVEREF(__pyx_v_starting_pos);
-  PyTuple_SET_ITEM(__pyx_t_4, 1, __pyx_v_starting_pos);
-  __pyx_t_5 = __Pyx_PyObject_Call(((PyObject *)__pyx_ptype_7cpython_5array_array), __pyx_t_4, NULL); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 68, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_5);
-  __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_v_pos = ((arrayobject *)__pyx_t_5);
-  __pyx_t_5 = 0;
+  PyTuple_SET_ITEM(__pyx_t_3, 1, __pyx_v_starting_pos);
+  __pyx_t_4 = __Pyx_PyObject_Call(((PyObject *)__pyx_ptype_7cpython_5array_array), __pyx_t_3, NULL); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 77, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_4);
+  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+  __pyx_v_pos = ((arrayobject *)__pyx_t_4);
+  __pyx_t_4 = 0;
 
-  /* "envs/mujoco/trajectory_solver.pyx":69
+  /* "strikethree/envs/mujoco/trajectory_solver.pyx":78
  * 
  *     cdef array.array pos = array.array('f', starting_pos)
  *     cdef float[3] lin_pos = pos.data.as_floats             # <<<<<<<<<<<<<<
  * 
  *     cdef array.array velo = array.array('f', starting_velo)
  */
-  __pyx_t_6 = __pyx_v_pos->data.as_floats;
-  memcpy(&(__pyx_v_lin_pos[0]), __pyx_t_6, sizeof(__pyx_v_lin_pos[0]) * (3 - 0));
+  __pyx_t_5 = __pyx_v_pos->data.as_floats;
+  memcpy(&(__pyx_v_lin_pos[0]), __pyx_t_5, sizeof(__pyx_v_lin_pos[0]) * (3 - 0));
 
-  /* "envs/mujoco/trajectory_solver.pyx":71
+  /* "strikethree/envs/mujoco/trajectory_solver.pyx":80
  *     cdef float[3] lin_pos = pos.data.as_floats
  * 
  *     cdef array.array velo = array.array('f', starting_velo)             # <<<<<<<<<<<<<<
  *     cdef float[3] lin_velo = velo.data.as_floats
  * 
  */
-  __pyx_t_5 = PyTuple_New(2); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 71, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_5);
+  __pyx_t_4 = PyTuple_New(2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 80, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_4);
   __Pyx_INCREF(__pyx_n_s_f);
   __Pyx_GIVEREF(__pyx_n_s_f);
-  PyTuple_SET_ITEM(__pyx_t_5, 0, __pyx_n_s_f);
+  PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_n_s_f);
   __Pyx_INCREF(__pyx_v_starting_velo);
   __Pyx_GIVEREF(__pyx_v_starting_velo);
-  PyTuple_SET_ITEM(__pyx_t_5, 1, __pyx_v_starting_velo);
-  __pyx_t_4 = __Pyx_PyObject_Call(((PyObject *)__pyx_ptype_7cpython_5array_array), __pyx_t_5, NULL); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 71, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_4);
-  __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  __pyx_v_velo = ((arrayobject *)__pyx_t_4);
-  __pyx_t_4 = 0;
+  PyTuple_SET_ITEM(__pyx_t_4, 1, __pyx_v_starting_velo);
+  __pyx_t_3 = __Pyx_PyObject_Call(((PyObject *)__pyx_ptype_7cpython_5array_array), __pyx_t_4, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 80, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_3);
+  __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+  __pyx_v_velo = ((arrayobject *)__pyx_t_3);
+  __pyx_t_3 = 0;
 
-  /* "envs/mujoco/trajectory_solver.pyx":72
+  /* "strikethree/envs/mujoco/trajectory_solver.pyx":81
  * 
  *     cdef array.array velo = array.array('f', starting_velo)
  *     cdef float[3] lin_velo = velo.data.as_floats             # <<<<<<<<<<<<<<
  * 
  *     cdef float[3] initial_position = lin_pos
  */
-  __pyx_t_6 = __pyx_v_velo->data.as_floats;
-  memcpy(&(__pyx_v_lin_velo[0]), __pyx_t_6, sizeof(__pyx_v_lin_velo[0]) * (3 - 0));
+  __pyx_t_5 = __pyx_v_velo->data.as_floats;
+  memcpy(&(__pyx_v_lin_velo[0]), __pyx_t_5, sizeof(__pyx_v_lin_velo[0]) * (3 - 0));
 
-  /* "envs/mujoco/trajectory_solver.pyx":74
+  /* "strikethree/envs/mujoco/trajectory_solver.pyx":83
  *     cdef float[3] lin_velo = velo.data.as_floats
  * 
  *     cdef float[3] initial_position = lin_pos             # <<<<<<<<<<<<<<
  * 
- *     while l2_norm(delta_pos) < distance_to_home:
+ * 
  */
   memcpy(&(__pyx_v_initial_position[0]), __pyx_v_lin_pos, sizeof(__pyx_v_initial_position[0]) * (3));
 
-  /* "envs/mujoco/trajectory_solver.pyx":76
- *     cdef float[3] initial_position = lin_pos
+  /* "strikethree/envs/mujoco/trajectory_solver.pyx":87
  * 
- *     while l2_norm(delta_pos) < distance_to_home:             # <<<<<<<<<<<<<<
+ *     # We use Python lists for simplicity, since plotting trajectories should not be used in training.
+ *     trajectory = [[], [], []]             # <<<<<<<<<<<<<<
+ * 
+ *     cdef int iterations = 0
+ */
+  __pyx_t_3 = PyList_New(0); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 87, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_3);
+  __pyx_t_4 = PyList_New(0); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 87, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_4);
+  __pyx_t_6 = PyList_New(0); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 87, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_6);
+  __pyx_t_7 = PyList_New(3); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 87, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_7);
+  __Pyx_GIVEREF(__pyx_t_3);
+  PyList_SET_ITEM(__pyx_t_7, 0, __pyx_t_3);
+  __Pyx_GIVEREF(__pyx_t_4);
+  PyList_SET_ITEM(__pyx_t_7, 1, __pyx_t_4);
+  __Pyx_GIVEREF(__pyx_t_6);
+  PyList_SET_ITEM(__pyx_t_7, 2, __pyx_t_6);
+  __pyx_t_3 = 0;
+  __pyx_t_4 = 0;
+  __pyx_t_6 = 0;
+  __pyx_v_trajectory = ((PyObject*)__pyx_t_7);
+  __pyx_t_7 = 0;
+
+  /* "strikethree/envs/mujoco/trajectory_solver.pyx":89
+ *     trajectory = [[], [], []]
+ * 
+ *     cdef int iterations = 0             # <<<<<<<<<<<<<<
+ *     while distance_travelled < distance_to_home and iterations < max_iterations:
+ *         #print("Distance travelled: ", distance_travelled)
+ */
+  __pyx_v_iterations = 0;
+
+  /* "strikethree/envs/mujoco/trajectory_solver.pyx":90
+ * 
+ *     cdef int iterations = 0
+ *     while distance_travelled < distance_to_home and iterations < max_iterations:             # <<<<<<<<<<<<<<
+ *         #print("Distance travelled: ", distance_travelled)
  *         step(ang_velo, lin_velo, acc, lin_pos)
- * 
  */
   while (1) {
-    __pyx_t_7 = ((__pyx_f_17trajectory_module_l2_norm(__pyx_v_delta_pos) < __pyx_v_17trajectory_module_distance_to_home) != 0);
-    if (!__pyx_t_7) break;
+    __pyx_t_9 = ((__pyx_v_distance_travelled < __pyx_v_17trajectory_module_distance_to_home) != 0);
+    if (__pyx_t_9) {
+    } else {
+      __pyx_t_8 = __pyx_t_9;
+      goto __pyx_L5_bool_binop_done;
+    }
+    __pyx_t_7 = __Pyx_PyInt_From_int(__pyx_v_iterations); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 90, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_7);
+    __pyx_t_6 = PyObject_RichCompare(__pyx_t_7, __pyx_v_max_iterations, Py_LT); __Pyx_XGOTREF(__pyx_t_6); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 90, __pyx_L1_error)
+    __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
+    __pyx_t_9 = __Pyx_PyObject_IsTrue(__pyx_t_6); if (unlikely(__pyx_t_9 < 0)) __PYX_ERR(0, 90, __pyx_L1_error)
+    __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
+    __pyx_t_8 = __pyx_t_9;
+    __pyx_L5_bool_binop_done:;
+    if (!__pyx_t_8) break;
 
-    /* "envs/mujoco/trajectory_solver.pyx":77
- * 
- *     while l2_norm(delta_pos) < distance_to_home:
+    /* "strikethree/envs/mujoco/trajectory_solver.pyx":92
+ *     while distance_travelled < distance_to_home and iterations < max_iterations:
+ *         #print("Distance travelled: ", distance_travelled)
  *         step(ang_velo, lin_velo, acc, lin_pos)             # <<<<<<<<<<<<<<
  * 
  *         # Reset the acceleration vector and compute delta.
  */
     __pyx_f_17trajectory_module_step(__pyx_v_ang_velo, __pyx_v_lin_velo, __pyx_v_acc, __pyx_v_lin_pos);
 
-    /* "envs/mujoco/trajectory_solver.pyx":80
+    /* "strikethree/envs/mujoco/trajectory_solver.pyx":95
  * 
  *         # Reset the acceleration vector and compute delta.
  *         for i in range(3):             # <<<<<<<<<<<<<<
  *             acc[i] = 0
- *             delta_pos[i] = pos[i] - initial_position[i]
+ *             if store_vals:
  */
-    for (__pyx_t_8 = 0; __pyx_t_8 < 3; __pyx_t_8+=1) {
-      __pyx_v_i = __pyx_t_8;
+    for (__pyx_t_10 = 0; __pyx_t_10 < 3; __pyx_t_10+=1) {
+      __pyx_v_i = __pyx_t_10;
 
-      /* "envs/mujoco/trajectory_solver.pyx":81
+      /* "strikethree/envs/mujoco/trajectory_solver.pyx":96
  *         # Reset the acceleration vector and compute delta.
  *         for i in range(3):
  *             acc[i] = 0             # <<<<<<<<<<<<<<
- *             delta_pos[i] = pos[i] - initial_position[i]
- * 
+ *             if store_vals:
+ *                 trajectory[i].append(lin_pos[i])
  */
       (__pyx_v_acc[__pyx_v_i]) = 0.0;
 
-      /* "envs/mujoco/trajectory_solver.pyx":82
+      /* "strikethree/envs/mujoco/trajectory_solver.pyx":97
  *         for i in range(3):
  *             acc[i] = 0
- *             delta_pos[i] = pos[i] - initial_position[i]             # <<<<<<<<<<<<<<
+ *             if store_vals:             # <<<<<<<<<<<<<<
+ *                 trajectory[i].append(lin_pos[i])
  * 
- *         time_elapsed += delta_t
  */
-      __pyx_t_4 = __Pyx_GetItemInt(((PyObject *)__pyx_v_pos), __pyx_v_i, long, 1, __Pyx_PyInt_From_long, 0, 1, 1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 82, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_4);
-      __pyx_t_5 = PyFloat_FromDouble((__pyx_v_initial_position[__pyx_v_i])); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 82, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_5);
-      __pyx_t_9 = PyNumber_Subtract(__pyx_t_4, __pyx_t_5); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 82, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_9);
-      __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-      __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-      __pyx_t_10 = __pyx_PyFloat_AsFloat(__pyx_t_9); if (unlikely((__pyx_t_10 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 82, __pyx_L1_error)
-      __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
-      (__pyx_v_delta_pos[__pyx_v_i]) = __pyx_t_10;
-    }
+      __pyx_t_8 = __Pyx_PyObject_IsTrue(__pyx_v_store_vals); if (unlikely(__pyx_t_8 < 0)) __PYX_ERR(0, 97, __pyx_L1_error)
+      if (__pyx_t_8) {
 
-    /* "envs/mujoco/trajectory_solver.pyx":84
- *             delta_pos[i] = pos[i] - initial_position[i]
+        /* "strikethree/envs/mujoco/trajectory_solver.pyx":98
+ *             acc[i] = 0
+ *             if store_vals:
+ *                 trajectory[i].append(lin_pos[i])             # <<<<<<<<<<<<<<
  * 
- *         time_elapsed += delta_t             # <<<<<<<<<<<<<<
- * 
- *         # Break if any position falls below 0.
+ *         distance_travelled = lin_pos[1] - initial_position[1]
  */
-    __pyx_v_time_elapsed = (__pyx_v_time_elapsed + __pyx_v_17trajectory_module_delta_t);
+        __pyx_t_6 = __Pyx_GetItemInt_List(__pyx_v_trajectory, __pyx_v_i, long, 1, __Pyx_PyInt_From_long, 1, 1, 1); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 98, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_6);
+        __pyx_t_7 = PyFloat_FromDouble((__pyx_v_lin_pos[__pyx_v_i])); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 98, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_7);
+        __pyx_t_11 = __Pyx_PyObject_Append(__pyx_t_6, __pyx_t_7); if (unlikely(__pyx_t_11 == ((int)-1))) __PYX_ERR(0, 98, __pyx_L1_error)
+        __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
+        __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
 
-    /* "envs/mujoco/trajectory_solver.pyx":87
- * 
- *         # Break if any position falls below 0.
- *         for i in range(3):             # <<<<<<<<<<<<<<
- *             if lin_pos[i] < 0:
- *                 break
- */
-    for (__pyx_t_8 = 0; __pyx_t_8 < 3; __pyx_t_8+=1) {
-      __pyx_v_i = __pyx_t_8;
-
-      /* "envs/mujoco/trajectory_solver.pyx":88
- *         # Break if any position falls below 0.
+        /* "strikethree/envs/mujoco/trajectory_solver.pyx":97
  *         for i in range(3):
- *             if lin_pos[i] < 0:             # <<<<<<<<<<<<<<
- *                 break
- * 
- */
-      __pyx_t_7 = (((__pyx_v_lin_pos[__pyx_v_i]) < 0.0) != 0);
-      if (__pyx_t_7) {
-
-        /* "envs/mujoco/trajectory_solver.pyx":89
- *         for i in range(3):
- *             if lin_pos[i] < 0:
- *                 break             # <<<<<<<<<<<<<<
- * 
- *     final_pos, final_velo = [], []
- */
-        goto __pyx_L8_break;
-
-        /* "envs/mujoco/trajectory_solver.pyx":88
- *         # Break if any position falls below 0.
- *         for i in range(3):
- *             if lin_pos[i] < 0:             # <<<<<<<<<<<<<<
- *                 break
+ *             acc[i] = 0
+ *             if store_vals:             # <<<<<<<<<<<<<<
+ *                 trajectory[i].append(lin_pos[i])
  * 
  */
       }
     }
-    __pyx_L8_break:;
-  }
 
-  /* "envs/mujoco/trajectory_solver.pyx":91
- *                 break
+    /* "strikethree/envs/mujoco/trajectory_solver.pyx":100
+ *                 trajectory[i].append(lin_pos[i])
+ * 
+ *         distance_travelled = lin_pos[1] - initial_position[1]             # <<<<<<<<<<<<<<
+ * 
+ *         time_elapsed += delta_t
+ */
+    __pyx_v_distance_travelled = ((__pyx_v_lin_pos[1]) - (__pyx_v_initial_position[1]));
+
+    /* "strikethree/envs/mujoco/trajectory_solver.pyx":102
+ *         distance_travelled = lin_pos[1] - initial_position[1]
+ * 
+ *         time_elapsed += delta_t             # <<<<<<<<<<<<<<
+ * 
+ *         # Break if z-position falls below 0.
+ */
+    __pyx_v_time_elapsed = (__pyx_v_time_elapsed + __pyx_v_17trajectory_module_delta_t);
+
+    /* "strikethree/envs/mujoco/trajectory_solver.pyx":105
+ * 
+ *         # Break if z-position falls below 0.
+ *         if lin_pos[2] < 0:             # <<<<<<<<<<<<<<
+ *             break
+ * 
+ */
+    __pyx_t_8 = (((__pyx_v_lin_pos[2]) < 0.0) != 0);
+    if (__pyx_t_8) {
+
+      /* "strikethree/envs/mujoco/trajectory_solver.pyx":106
+ *         # Break if z-position falls below 0.
+ *         if lin_pos[2] < 0:
+ *             break             # <<<<<<<<<<<<<<
+ * 
+ *         iterations += 1
+ */
+      goto __pyx_L4_break;
+
+      /* "strikethree/envs/mujoco/trajectory_solver.pyx":105
+ * 
+ *         # Break if z-position falls below 0.
+ *         if lin_pos[2] < 0:             # <<<<<<<<<<<<<<
+ *             break
+ * 
+ */
+    }
+
+    /* "strikethree/envs/mujoco/trajectory_solver.pyx":108
+ *             break
+ * 
+ *         iterations += 1             # <<<<<<<<<<<<<<
+ *     #print("Position: ", lin_pos[0], lin_pos[1], lin_pos[2])
+ * 
+ */
+    __pyx_v_iterations = (__pyx_v_iterations + 1);
+  }
+  __pyx_L4_break:;
+
+  /* "strikethree/envs/mujoco/trajectory_solver.pyx":111
+ *     #print("Position: ", lin_pos[0], lin_pos[1], lin_pos[2])
  * 
  *     final_pos, final_velo = [], []             # <<<<<<<<<<<<<<
  *     for i in range(3):
- *         final_pos.append(pos[i])
+ *         final_pos.append(lin_pos[i])
  */
-  __pyx_t_9 = PyList_New(0); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 91, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_9);
-  __pyx_t_5 = PyList_New(0); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 91, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_5);
-  __pyx_v_final_pos = ((PyObject*)__pyx_t_9);
-  __pyx_t_9 = 0;
-  __pyx_v_final_velo = ((PyObject*)__pyx_t_5);
-  __pyx_t_5 = 0;
+  __pyx_t_7 = PyList_New(0); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 111, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_7);
+  __pyx_t_6 = PyList_New(0); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 111, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_6);
+  __pyx_v_final_pos = ((PyObject*)__pyx_t_7);
+  __pyx_t_7 = 0;
+  __pyx_v_final_velo = ((PyObject*)__pyx_t_6);
+  __pyx_t_6 = 0;
 
-  /* "envs/mujoco/trajectory_solver.pyx":92
+  /* "strikethree/envs/mujoco/trajectory_solver.pyx":112
  * 
  *     final_pos, final_velo = [], []
  *     for i in range(3):             # <<<<<<<<<<<<<<
- *         final_pos.append(pos[i])
- *         final_velo.append(velo[i])
+ *         final_pos.append(lin_pos[i])
+ *         final_velo.append(lin_velo[i])
  */
-  for (__pyx_t_8 = 0; __pyx_t_8 < 3; __pyx_t_8+=1) {
-    __pyx_v_i = __pyx_t_8;
+  for (__pyx_t_10 = 0; __pyx_t_10 < 3; __pyx_t_10+=1) {
+    __pyx_v_i = __pyx_t_10;
 
-    /* "envs/mujoco/trajectory_solver.pyx":93
+    /* "strikethree/envs/mujoco/trajectory_solver.pyx":113
  *     final_pos, final_velo = [], []
  *     for i in range(3):
- *         final_pos.append(pos[i])             # <<<<<<<<<<<<<<
- *         final_velo.append(velo[i])
- *     return (time_elapsed, final_pos, final_velo)
+ *         final_pos.append(lin_pos[i])             # <<<<<<<<<<<<<<
+ *         final_velo.append(lin_velo[i])
+ * 
  */
-    __pyx_t_5 = __Pyx_GetItemInt(((PyObject *)__pyx_v_pos), __pyx_v_i, long, 1, __Pyx_PyInt_From_long, 0, 1, 1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 93, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_5);
-    __pyx_t_11 = __Pyx_PyList_Append(__pyx_v_final_pos, __pyx_t_5); if (unlikely(__pyx_t_11 == ((int)-1))) __PYX_ERR(0, 93, __pyx_L1_error)
-    __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+    __pyx_t_6 = PyFloat_FromDouble((__pyx_v_lin_pos[__pyx_v_i])); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 113, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_6);
+    __pyx_t_11 = __Pyx_PyList_Append(__pyx_v_final_pos, __pyx_t_6); if (unlikely(__pyx_t_11 == ((int)-1))) __PYX_ERR(0, 113, __pyx_L1_error)
+    __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
 
-    /* "envs/mujoco/trajectory_solver.pyx":94
+    /* "strikethree/envs/mujoco/trajectory_solver.pyx":114
  *     for i in range(3):
- *         final_pos.append(pos[i])
- *         final_velo.append(velo[i])             # <<<<<<<<<<<<<<
- *     return (time_elapsed, final_pos, final_velo)
+ *         final_pos.append(lin_pos[i])
+ *         final_velo.append(lin_velo[i])             # <<<<<<<<<<<<<<
+ * 
+ *     return (time_elapsed, final_pos, final_velo, trajectory)
  */
-    __pyx_t_5 = __Pyx_GetItemInt(((PyObject *)__pyx_v_velo), __pyx_v_i, long, 1, __Pyx_PyInt_From_long, 0, 1, 1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 94, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_5);
-    __pyx_t_11 = __Pyx_PyList_Append(__pyx_v_final_velo, __pyx_t_5); if (unlikely(__pyx_t_11 == ((int)-1))) __PYX_ERR(0, 94, __pyx_L1_error)
-    __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+    __pyx_t_6 = PyFloat_FromDouble((__pyx_v_lin_velo[__pyx_v_i])); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 114, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_6);
+    __pyx_t_11 = __Pyx_PyList_Append(__pyx_v_final_velo, __pyx_t_6); if (unlikely(__pyx_t_11 == ((int)-1))) __PYX_ERR(0, 114, __pyx_L1_error)
+    __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
   }
 
-  /* "envs/mujoco/trajectory_solver.pyx":95
- *         final_pos.append(pos[i])
- *         final_velo.append(velo[i])
- *     return (time_elapsed, final_pos, final_velo)             # <<<<<<<<<<<<<<
+  /* "strikethree/envs/mujoco/trajectory_solver.pyx":116
+ *         final_velo.append(lin_velo[i])
+ * 
+ *     return (time_elapsed, final_pos, final_velo, trajectory)             # <<<<<<<<<<<<<<
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_5 = PyFloat_FromDouble(__pyx_v_time_elapsed); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 95, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_5);
-  __pyx_t_9 = PyTuple_New(3); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 95, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_9);
-  __Pyx_GIVEREF(__pyx_t_5);
-  PyTuple_SET_ITEM(__pyx_t_9, 0, __pyx_t_5);
+  __pyx_t_6 = PyFloat_FromDouble(__pyx_v_time_elapsed); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 116, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_6);
+  __pyx_t_7 = PyTuple_New(4); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 116, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_7);
+  __Pyx_GIVEREF(__pyx_t_6);
+  PyTuple_SET_ITEM(__pyx_t_7, 0, __pyx_t_6);
   __Pyx_INCREF(__pyx_v_final_pos);
   __Pyx_GIVEREF(__pyx_v_final_pos);
-  PyTuple_SET_ITEM(__pyx_t_9, 1, __pyx_v_final_pos);
+  PyTuple_SET_ITEM(__pyx_t_7, 1, __pyx_v_final_pos);
   __Pyx_INCREF(__pyx_v_final_velo);
   __Pyx_GIVEREF(__pyx_v_final_velo);
-  PyTuple_SET_ITEM(__pyx_t_9, 2, __pyx_v_final_velo);
-  __pyx_t_5 = 0;
-  __pyx_r = __pyx_t_9;
-  __pyx_t_9 = 0;
+  PyTuple_SET_ITEM(__pyx_t_7, 2, __pyx_v_final_velo);
+  __Pyx_INCREF(__pyx_v_trajectory);
+  __Pyx_GIVEREF(__pyx_v_trajectory);
+  PyTuple_SET_ITEM(__pyx_t_7, 3, __pyx_v_trajectory);
+  __pyx_t_6 = 0;
+  __pyx_r = __pyx_t_7;
+  __pyx_t_7 = 0;
   goto __pyx_L0;
 
-  /* "envs/mujoco/trajectory_solver.pyx":58
- *         lin_velo[i] += acc[i] * delta_t
+  /* "strikethree/envs/mujoco/trajectory_solver.pyx":67
+ *     #print("Position: ", lin_pos[0], ',', lin_pos[1], ',', lin_pos[2])
  * 
- * def compute_trajectory(list starting_velo, list starting_pos):             # <<<<<<<<<<<<<<
+ * def compute_trajectory(list starting_velo, list starting_pos, store_vals=False, max_iterations=MAX_ITERATIONS):             # <<<<<<<<<<<<<<
  *     """
  *     This function (and associated functions) numerically integrates the kinematic equations, accounting for drag, gravitational, and magnus forces on
  */
 
   /* function exit code */
   __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4);
-  __Pyx_XDECREF(__pyx_t_5);
-  __Pyx_XDECREF(__pyx_t_9);
+  __Pyx_XDECREF(__pyx_t_6);
+  __Pyx_XDECREF(__pyx_t_7);
   __Pyx_AddTraceback("trajectory_module.compute_trajectory", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XDECREF((PyObject *)__pyx_v_pos);
   __Pyx_XDECREF((PyObject *)__pyx_v_velo);
+  __Pyx_XDECREF(__pyx_v_trajectory);
   __Pyx_XDECREF(__pyx_v_final_pos);
   __Pyx_XDECREF(__pyx_v_final_velo);
   __Pyx_XGIVEREF(__pyx_r);
@@ -3078,31 +3287,36 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_MemoryError, __pyx_k_MemoryError, sizeof(__pyx_k_MemoryError), 0, 0, 1, 1},
   {&__pyx_n_s_acc, __pyx_k_acc, sizeof(__pyx_k_acc), 0, 0, 1, 1},
   {&__pyx_n_s_ang_velo, __pyx_k_ang_velo, sizeof(__pyx_k_ang_velo), 0, 0, 1, 1},
+  {&__pyx_n_s_append, __pyx_k_append, sizeof(__pyx_k_append), 0, 0, 1, 1},
   {&__pyx_n_s_cline_in_traceback, __pyx_k_cline_in_traceback, sizeof(__pyx_k_cline_in_traceback), 0, 0, 1, 1},
   {&__pyx_n_s_compute_trajectory, __pyx_k_compute_trajectory, sizeof(__pyx_k_compute_trajectory), 0, 0, 1, 1},
-  {&__pyx_n_s_delta_pos, __pyx_k_delta_pos, sizeof(__pyx_k_delta_pos), 0, 0, 1, 1},
-  {&__pyx_kp_s_envs_mujoco_trajectory_solver_py, __pyx_k_envs_mujoco_trajectory_solver_py, sizeof(__pyx_k_envs_mujoco_trajectory_solver_py), 0, 0, 1, 0},
+  {&__pyx_n_s_distance_travelled, __pyx_k_distance_travelled, sizeof(__pyx_k_distance_travelled), 0, 0, 1, 1},
   {&__pyx_n_s_f, __pyx_k_f, sizeof(__pyx_k_f), 0, 0, 1, 1},
   {&__pyx_n_s_final_pos, __pyx_k_final_pos, sizeof(__pyx_k_final_pos), 0, 0, 1, 1},
   {&__pyx_n_s_final_velo, __pyx_k_final_velo, sizeof(__pyx_k_final_velo), 0, 0, 1, 1},
   {&__pyx_n_s_i, __pyx_k_i, sizeof(__pyx_k_i), 0, 0, 1, 1},
   {&__pyx_n_s_initial_position, __pyx_k_initial_position, sizeof(__pyx_k_initial_position), 0, 0, 1, 1},
+  {&__pyx_n_s_iterations, __pyx_k_iterations, sizeof(__pyx_k_iterations), 0, 0, 1, 1},
   {&__pyx_n_s_lin_pos, __pyx_k_lin_pos, sizeof(__pyx_k_lin_pos), 0, 0, 1, 1},
   {&__pyx_n_s_lin_velo, __pyx_k_lin_velo, sizeof(__pyx_k_lin_velo), 0, 0, 1, 1},
   {&__pyx_n_s_main, __pyx_k_main, sizeof(__pyx_k_main), 0, 0, 1, 1},
+  {&__pyx_n_s_max_iterations, __pyx_k_max_iterations, sizeof(__pyx_k_max_iterations), 0, 0, 1, 1},
   {&__pyx_n_s_name, __pyx_k_name, sizeof(__pyx_k_name), 0, 0, 1, 1},
   {&__pyx_n_s_pos, __pyx_k_pos, sizeof(__pyx_k_pos), 0, 0, 1, 1},
   {&__pyx_n_s_range, __pyx_k_range, sizeof(__pyx_k_range), 0, 0, 1, 1},
   {&__pyx_n_s_starting_pos, __pyx_k_starting_pos, sizeof(__pyx_k_starting_pos), 0, 0, 1, 1},
   {&__pyx_n_s_starting_velo, __pyx_k_starting_velo, sizeof(__pyx_k_starting_velo), 0, 0, 1, 1},
+  {&__pyx_n_s_store_vals, __pyx_k_store_vals, sizeof(__pyx_k_store_vals), 0, 0, 1, 1},
+  {&__pyx_kp_s_strikethree_envs_mujoco_trajecto, __pyx_k_strikethree_envs_mujoco_trajecto, sizeof(__pyx_k_strikethree_envs_mujoco_trajecto), 0, 0, 1, 0},
   {&__pyx_n_s_test, __pyx_k_test, sizeof(__pyx_k_test), 0, 0, 1, 1},
   {&__pyx_n_s_time_elapsed, __pyx_k_time_elapsed, sizeof(__pyx_k_time_elapsed), 0, 0, 1, 1},
+  {&__pyx_n_s_trajectory, __pyx_k_trajectory, sizeof(__pyx_k_trajectory), 0, 0, 1, 1},
   {&__pyx_n_s_trajectory_module, __pyx_k_trajectory_module, sizeof(__pyx_k_trajectory_module), 0, 0, 1, 1},
   {&__pyx_n_s_velo, __pyx_k_velo, sizeof(__pyx_k_velo), 0, 0, 1, 1},
   {0, 0, 0, 0, 0, 0, 0}
 };
 static CYTHON_SMALL_CODE int __Pyx_InitCachedBuiltins(void) {
-  __pyx_builtin_range = __Pyx_GetBuiltinName(__pyx_n_s_range); if (!__pyx_builtin_range) __PYX_ERR(0, 53, __pyx_L1_error)
+  __pyx_builtin_range = __Pyx_GetBuiltinName(__pyx_n_s_range); if (!__pyx_builtin_range) __PYX_ERR(0, 60, __pyx_L1_error)
   __pyx_builtin_MemoryError = __Pyx_GetBuiltinName(__pyx_n_s_MemoryError); if (!__pyx_builtin_MemoryError) __PYX_ERR(1, 109, __pyx_L1_error)
   return 0;
   __pyx_L1_error:;
@@ -3113,17 +3327,17 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__Pyx_InitCachedConstants", 0);
 
-  /* "envs/mujoco/trajectory_solver.pyx":58
- *         lin_velo[i] += acc[i] * delta_t
+  /* "strikethree/envs/mujoco/trajectory_solver.pyx":67
+ *     #print("Position: ", lin_pos[0], ',', lin_pos[1], ',', lin_pos[2])
  * 
- * def compute_trajectory(list starting_velo, list starting_pos):             # <<<<<<<<<<<<<<
+ * def compute_trajectory(list starting_velo, list starting_pos, store_vals=False, max_iterations=MAX_ITERATIONS):             # <<<<<<<<<<<<<<
  *     """
  *     This function (and associated functions) numerically integrates the kinematic equations, accounting for drag, gravitational, and magnus forces on
  */
-  __pyx_tuple_ = PyTuple_Pack(14, __pyx_n_s_starting_velo, __pyx_n_s_starting_pos, __pyx_n_s_acc, __pyx_n_s_ang_velo, __pyx_n_s_delta_pos, __pyx_n_s_time_elapsed, __pyx_n_s_pos, __pyx_n_s_lin_pos, __pyx_n_s_velo, __pyx_n_s_lin_velo, __pyx_n_s_initial_position, __pyx_n_s_i, __pyx_n_s_final_pos, __pyx_n_s_final_velo); if (unlikely(!__pyx_tuple_)) __PYX_ERR(0, 58, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple_);
-  __Pyx_GIVEREF(__pyx_tuple_);
-  __pyx_codeobj__2 = (PyObject*)__Pyx_PyCode_New(2, 0, 14, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple_, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_envs_mujoco_trajectory_solver_py, __pyx_n_s_compute_trajectory, 58, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__2)) __PYX_ERR(0, 58, __pyx_L1_error)
+  __pyx_tuple__2 = PyTuple_Pack(18, __pyx_n_s_starting_velo, __pyx_n_s_starting_pos, __pyx_n_s_store_vals, __pyx_n_s_max_iterations, __pyx_n_s_acc, __pyx_n_s_ang_velo, __pyx_n_s_distance_travelled, __pyx_n_s_time_elapsed, __pyx_n_s_pos, __pyx_n_s_lin_pos, __pyx_n_s_velo, __pyx_n_s_lin_velo, __pyx_n_s_initial_position, __pyx_n_s_trajectory, __pyx_n_s_iterations, __pyx_n_s_i, __pyx_n_s_final_pos, __pyx_n_s_final_velo); if (unlikely(!__pyx_tuple__2)) __PYX_ERR(0, 67, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__2);
+  __Pyx_GIVEREF(__pyx_tuple__2);
+  __pyx_codeobj__3 = (PyObject*)__Pyx_PyCode_New(4, 0, 18, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__2, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_strikethree_envs_mujoco_trajecto, __pyx_n_s_compute_trajectory, 67, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__3)) __PYX_ERR(0, 67, __pyx_L1_error)
   __Pyx_RefNannyFinishContext();
   return 0;
   __pyx_L1_error:;
@@ -3432,7 +3646,16 @@ if (!__Pyx_RefNanny) {
   if (__Pyx_patch_abc() < 0) __PYX_ERR(0, 1, __pyx_L1_error)
   #endif
 
-  /* "envs/mujoco/trajectory_solver.pyx":7
+  /* "strikethree/envs/mujoco/trajectory_solver.pyx":6
+ * from cpython cimport array
+ * 
+ * cdef int MAX_ITERATIONS = 100             # <<<<<<<<<<<<<<
+ * 
+ * # Constants.
+ */
+  __pyx_v_17trajectory_module_MAX_ITERATIONS = 0x64;
+
+  /* "strikethree/envs/mujoco/trajectory_solver.pyx":9
  * 
  * # Constants.
  * cdef float rho = 1.23 # kg/m^3             # <<<<<<<<<<<<<<
@@ -3441,7 +3664,7 @@ if (!__Pyx_RefNanny) {
  */
   __pyx_v_17trajectory_module_rho = 1.23;
 
-  /* "envs/mujoco/trajectory_solver.pyx":8
+  /* "strikethree/envs/mujoco/trajectory_solver.pyx":10
  * # Constants.
  * cdef float rho = 1.23 # kg/m^3
  * cdef float radius = .0365 # m             # <<<<<<<<<<<<<<
@@ -3450,7 +3673,7 @@ if (!__Pyx_RefNanny) {
  */
   __pyx_v_17trajectory_module_radius = .0365;
 
-  /* "envs/mujoco/trajectory_solver.pyx":9
+  /* "strikethree/envs/mujoco/trajectory_solver.pyx":11
  * cdef float rho = 1.23 # kg/m^3
  * cdef float radius = .0365 # m
  * cdef float drag_coef = 0.4             # <<<<<<<<<<<<<<
@@ -3459,7 +3682,7 @@ if (!__Pyx_RefNanny) {
  */
   __pyx_v_17trajectory_module_drag_coef = 0.4;
 
-  /* "envs/mujoco/trajectory_solver.pyx":10
+  /* "strikethree/envs/mujoco/trajectory_solver.pyx":12
  * cdef float radius = .0365 # m
  * cdef float drag_coef = 0.4
  * cdef float area = M_PI * (radius ** 2) # m^2             # <<<<<<<<<<<<<<
@@ -3468,44 +3691,53 @@ if (!__Pyx_RefNanny) {
  */
   __pyx_v_17trajectory_module_area = (M_PI * powf(__pyx_v_17trajectory_module_radius, 2.0));
 
-  /* "envs/mujoco/trajectory_solver.pyx":11
+  /* "strikethree/envs/mujoco/trajectory_solver.pyx":13
  * cdef float drag_coef = 0.4
  * cdef float area = M_PI * (radius ** 2) # m^2
  * cdef float mass = 0.145 # kg             # <<<<<<<<<<<<<<
  * cdef float g_const = 9.8 # m/s^2
- * 
+ * cdef float lift_coef = 0.22
  */
   __pyx_v_17trajectory_module_mass = 0.145;
 
-  /* "envs/mujoco/trajectory_solver.pyx":12
+  /* "strikethree/envs/mujoco/trajectory_solver.pyx":14
  * cdef float area = M_PI * (radius ** 2) # m^2
  * cdef float mass = 0.145 # kg
  * cdef float g_const = 9.8 # m/s^2             # <<<<<<<<<<<<<<
- * 
- * cdef float magnus_constant = (4/3) * M_PI * (radius ** 3)
+ * cdef float lift_coef = 0.22
+ * #https://mdpi-res.com/d_attachment/proceedings/proceedings-49-00162/article_deploy/proceedings-49-00162.pdf?version=1592205185
  */
   __pyx_v_17trajectory_module_g_const = 9.8;
 
-  /* "envs/mujoco/trajectory_solver.pyx":14
+  /* "strikethree/envs/mujoco/trajectory_solver.pyx":15
+ * cdef float mass = 0.145 # kg
  * cdef float g_const = 9.8 # m/s^2
- * 
- * cdef float magnus_constant = (4/3) * M_PI * (radius ** 3)             # <<<<<<<<<<<<<<
- * cdef float drag_constant = (1/2) * drag_coef * rho * area
+ * cdef float lift_coef = 0.22             # <<<<<<<<<<<<<<
+ * #https://mdpi-res.com/d_attachment/proceedings/proceedings-49-00162/article_deploy/proceedings-49-00162.pdf?version=1592205185
  * 
  */
-  __pyx_v_17trajectory_module_magnus_constant = ((1.0 * M_PI) * powf(__pyx_v_17trajectory_module_radius, 3.0));
+  __pyx_v_17trajectory_module_lift_coef = 0.22;
 
-  /* "envs/mujoco/trajectory_solver.pyx":15
+  /* "strikethree/envs/mujoco/trajectory_solver.pyx":18
+ * #https://mdpi-res.com/d_attachment/proceedings/proceedings-49-00162/article_deploy/proceedings-49-00162.pdf?version=1592205185
  * 
- * cdef float magnus_constant = (4/3) * M_PI * (radius ** 3)
- * cdef float drag_constant = (1/2) * drag_coef * rho * area             # <<<<<<<<<<<<<<
+ * cdef float magnus_constant = 0.5 * rho * area * lift_coef             # <<<<<<<<<<<<<<
+ * cdef float drag_constant = 0.5 * drag_coef * rho * area
+ * 
+ */
+  __pyx_v_17trajectory_module_magnus_constant = (((0.5 * __pyx_v_17trajectory_module_rho) * __pyx_v_17trajectory_module_area) * __pyx_v_17trajectory_module_lift_coef);
+
+  /* "strikethree/envs/mujoco/trajectory_solver.pyx":19
+ * 
+ * cdef float magnus_constant = 0.5 * rho * area * lift_coef
+ * cdef float drag_constant = 0.5 * drag_coef * rho * area             # <<<<<<<<<<<<<<
  * 
  * cdef float distance_to_home = 18.29 # m
  */
-  __pyx_v_17trajectory_module_drag_constant = (((0.0 * __pyx_v_17trajectory_module_drag_coef) * __pyx_v_17trajectory_module_rho) * __pyx_v_17trajectory_module_area);
+  __pyx_v_17trajectory_module_drag_constant = (((0.5 * __pyx_v_17trajectory_module_drag_coef) * __pyx_v_17trajectory_module_rho) * __pyx_v_17trajectory_module_area);
 
-  /* "envs/mujoco/trajectory_solver.pyx":17
- * cdef float drag_constant = (1/2) * drag_coef * rho * area
+  /* "strikethree/envs/mujoco/trajectory_solver.pyx":21
+ * cdef float drag_constant = 0.5 * drag_coef * rho * area
  * 
  * cdef float distance_to_home = 18.29 # m             # <<<<<<<<<<<<<<
  * cdef float spin_rate = 228.8 # rad/s
@@ -3513,16 +3745,16 @@ if (!__Pyx_RefNanny) {
  */
   __pyx_v_17trajectory_module_distance_to_home = 18.29;
 
-  /* "envs/mujoco/trajectory_solver.pyx":18
+  /* "strikethree/envs/mujoco/trajectory_solver.pyx":22
  * 
  * cdef float distance_to_home = 18.29 # m
  * cdef float spin_rate = 228.8 # rad/s             # <<<<<<<<<<<<<<
  * 
- * 
+ * # delta
  */
   __pyx_v_17trajectory_module_spin_rate = 228.8;
 
-  /* "envs/mujoco/trajectory_solver.pyx":22
+  /* "strikethree/envs/mujoco/trajectory_solver.pyx":25
  * 
  * # delta
  * cdef float delta_t = 0.01 # s             # <<<<<<<<<<<<<<
@@ -3531,19 +3763,24 @@ if (!__Pyx_RefNanny) {
  */
   __pyx_v_17trajectory_module_delta_t = 0.01;
 
-  /* "envs/mujoco/trajectory_solver.pyx":58
- *         lin_velo[i] += acc[i] * delta_t
+  /* "strikethree/envs/mujoco/trajectory_solver.pyx":67
+ *     #print("Position: ", lin_pos[0], ',', lin_pos[1], ',', lin_pos[2])
  * 
- * def compute_trajectory(list starting_velo, list starting_pos):             # <<<<<<<<<<<<<<
+ * def compute_trajectory(list starting_velo, list starting_pos, store_vals=False, max_iterations=MAX_ITERATIONS):             # <<<<<<<<<<<<<<
  *     """
  *     This function (and associated functions) numerically integrates the kinematic equations, accounting for drag, gravitational, and magnus forces on
  */
-  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_17trajectory_module_1compute_trajectory, NULL, __pyx_n_s_trajectory_module); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 58, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_17trajectory_module_MAX_ITERATIONS); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 67, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_compute_trajectory, __pyx_t_1) < 0) __PYX_ERR(0, 58, __pyx_L1_error)
+  __pyx_k_ = __pyx_t_1;
+  __Pyx_GIVEREF(__pyx_t_1);
+  __pyx_t_1 = 0;
+  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_17trajectory_module_1compute_trajectory, NULL, __pyx_n_s_trajectory_module); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 67, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_compute_trajectory, __pyx_t_1) < 0) __PYX_ERR(0, 67, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "envs/mujoco/trajectory_solver.pyx":1
+  /* "strikethree/envs/mujoco/trajectory_solver.pyx":1
  * from libcpp.vector cimport vector             # <<<<<<<<<<<<<<
  * from libc.math cimport M_PI
  * 
@@ -3877,6 +4114,364 @@ static CYTHON_INLINE PyObject* __Pyx_PyObject_Call(PyObject *func, PyObject *arg
     return result;
 }
 #endif
+
+/* PyCFunctionFastCall */
+#if CYTHON_FAST_PYCCALL
+static CYTHON_INLINE PyObject * __Pyx_PyCFunction_FastCall(PyObject *func_obj, PyObject **args, Py_ssize_t nargs) {
+    PyCFunctionObject *func = (PyCFunctionObject*)func_obj;
+    PyCFunction meth = PyCFunction_GET_FUNCTION(func);
+    PyObject *self = PyCFunction_GET_SELF(func);
+    int flags = PyCFunction_GET_FLAGS(func);
+    assert(PyCFunction_Check(func));
+    assert(METH_FASTCALL == (flags & ~(METH_CLASS | METH_STATIC | METH_COEXIST | METH_KEYWORDS | METH_STACKLESS)));
+    assert(nargs >= 0);
+    assert(nargs == 0 || args != NULL);
+    /* _PyCFunction_FastCallDict() must not be called with an exception set,
+       because it may clear it (directly or indirectly) and so the
+       caller loses its exception */
+    assert(!PyErr_Occurred());
+    if ((PY_VERSION_HEX < 0x030700A0) || unlikely(flags & METH_KEYWORDS)) {
+        return (*((__Pyx_PyCFunctionFastWithKeywords)(void*)meth)) (self, args, nargs, NULL);
+    } else {
+        return (*((__Pyx_PyCFunctionFast)(void*)meth)) (self, args, nargs);
+    }
+}
+#endif
+
+/* PyFunctionFastCall */
+#if CYTHON_FAST_PYCALL
+static PyObject* __Pyx_PyFunction_FastCallNoKw(PyCodeObject *co, PyObject **args, Py_ssize_t na,
+                                               PyObject *globals) {
+    PyFrameObject *f;
+    PyThreadState *tstate = __Pyx_PyThreadState_Current;
+    PyObject **fastlocals;
+    Py_ssize_t i;
+    PyObject *result;
+    assert(globals != NULL);
+    /* XXX Perhaps we should create a specialized
+       PyFrame_New() that doesn't take locals, but does
+       take builtins without sanity checking them.
+       */
+    assert(tstate != NULL);
+    f = PyFrame_New(tstate, co, globals, NULL);
+    if (f == NULL) {
+        return NULL;
+    }
+    fastlocals = __Pyx_PyFrame_GetLocalsplus(f);
+    for (i = 0; i < na; i++) {
+        Py_INCREF(*args);
+        fastlocals[i] = *args++;
+    }
+    result = PyEval_EvalFrameEx(f,0);
+    ++tstate->recursion_depth;
+    Py_DECREF(f);
+    --tstate->recursion_depth;
+    return result;
+}
+#if 1 || PY_VERSION_HEX < 0x030600B1
+static PyObject *__Pyx_PyFunction_FastCallDict(PyObject *func, PyObject **args, Py_ssize_t nargs, PyObject *kwargs) {
+    PyCodeObject *co = (PyCodeObject *)PyFunction_GET_CODE(func);
+    PyObject *globals = PyFunction_GET_GLOBALS(func);
+    PyObject *argdefs = PyFunction_GET_DEFAULTS(func);
+    PyObject *closure;
+#if PY_MAJOR_VERSION >= 3
+    PyObject *kwdefs;
+#endif
+    PyObject *kwtuple, **k;
+    PyObject **d;
+    Py_ssize_t nd;
+    Py_ssize_t nk;
+    PyObject *result;
+    assert(kwargs == NULL || PyDict_Check(kwargs));
+    nk = kwargs ? PyDict_Size(kwargs) : 0;
+    if (Py_EnterRecursiveCall((char*)" while calling a Python object")) {
+        return NULL;
+    }
+    if (
+#if PY_MAJOR_VERSION >= 3
+            co->co_kwonlyargcount == 0 &&
+#endif
+            likely(kwargs == NULL || nk == 0) &&
+            co->co_flags == (CO_OPTIMIZED | CO_NEWLOCALS | CO_NOFREE)) {
+        if (argdefs == NULL && co->co_argcount == nargs) {
+            result = __Pyx_PyFunction_FastCallNoKw(co, args, nargs, globals);
+            goto done;
+        }
+        else if (nargs == 0 && argdefs != NULL
+                 && co->co_argcount == Py_SIZE(argdefs)) {
+            /* function called with no arguments, but all parameters have
+               a default value: use default values as arguments .*/
+            args = &PyTuple_GET_ITEM(argdefs, 0);
+            result =__Pyx_PyFunction_FastCallNoKw(co, args, Py_SIZE(argdefs), globals);
+            goto done;
+        }
+    }
+    if (kwargs != NULL) {
+        Py_ssize_t pos, i;
+        kwtuple = PyTuple_New(2 * nk);
+        if (kwtuple == NULL) {
+            result = NULL;
+            goto done;
+        }
+        k = &PyTuple_GET_ITEM(kwtuple, 0);
+        pos = i = 0;
+        while (PyDict_Next(kwargs, &pos, &k[i], &k[i+1])) {
+            Py_INCREF(k[i]);
+            Py_INCREF(k[i+1]);
+            i += 2;
+        }
+        nk = i / 2;
+    }
+    else {
+        kwtuple = NULL;
+        k = NULL;
+    }
+    closure = PyFunction_GET_CLOSURE(func);
+#if PY_MAJOR_VERSION >= 3
+    kwdefs = PyFunction_GET_KW_DEFAULTS(func);
+#endif
+    if (argdefs != NULL) {
+        d = &PyTuple_GET_ITEM(argdefs, 0);
+        nd = Py_SIZE(argdefs);
+    }
+    else {
+        d = NULL;
+        nd = 0;
+    }
+#if PY_MAJOR_VERSION >= 3
+    result = PyEval_EvalCodeEx((PyObject*)co, globals, (PyObject *)NULL,
+                               args, (int)nargs,
+                               k, (int)nk,
+                               d, (int)nd, kwdefs, closure);
+#else
+    result = PyEval_EvalCodeEx(co, globals, (PyObject *)NULL,
+                               args, (int)nargs,
+                               k, (int)nk,
+                               d, (int)nd, closure);
+#endif
+    Py_XDECREF(kwtuple);
+done:
+    Py_LeaveRecursiveCall();
+    return result;
+}
+#endif
+#endif
+
+/* PyObjectCall2Args */
+static CYTHON_UNUSED PyObject* __Pyx_PyObject_Call2Args(PyObject* function, PyObject* arg1, PyObject* arg2) {
+    PyObject *args, *result = NULL;
+    #if CYTHON_FAST_PYCALL
+    if (PyFunction_Check(function)) {
+        PyObject *args[2] = {arg1, arg2};
+        return __Pyx_PyFunction_FastCall(function, args, 2);
+    }
+    #endif
+    #if CYTHON_FAST_PYCCALL
+    if (__Pyx_PyFastCFunction_Check(function)) {
+        PyObject *args[2] = {arg1, arg2};
+        return __Pyx_PyCFunction_FastCall(function, args, 2);
+    }
+    #endif
+    args = PyTuple_New(2);
+    if (unlikely(!args)) goto done;
+    Py_INCREF(arg1);
+    PyTuple_SET_ITEM(args, 0, arg1);
+    Py_INCREF(arg2);
+    PyTuple_SET_ITEM(args, 1, arg2);
+    Py_INCREF(function);
+    result = __Pyx_PyObject_Call(function, args, NULL);
+    Py_DECREF(args);
+    Py_DECREF(function);
+done:
+    return result;
+}
+
+/* PyObjectCallMethO */
+#if CYTHON_COMPILING_IN_CPYTHON
+static CYTHON_INLINE PyObject* __Pyx_PyObject_CallMethO(PyObject *func, PyObject *arg) {
+    PyObject *self, *result;
+    PyCFunction cfunc;
+    cfunc = PyCFunction_GET_FUNCTION(func);
+    self = PyCFunction_GET_SELF(func);
+    if (unlikely(Py_EnterRecursiveCall((char*)" while calling a Python object")))
+        return NULL;
+    result = cfunc(self, arg);
+    Py_LeaveRecursiveCall();
+    if (unlikely(!result) && unlikely(!PyErr_Occurred())) {
+        PyErr_SetString(
+            PyExc_SystemError,
+            "NULL result without error in PyObject_Call");
+    }
+    return result;
+}
+#endif
+
+/* PyObjectCallOneArg */
+#if CYTHON_COMPILING_IN_CPYTHON
+static PyObject* __Pyx__PyObject_CallOneArg(PyObject *func, PyObject *arg) {
+    PyObject *result;
+    PyObject *args = PyTuple_New(1);
+    if (unlikely(!args)) return NULL;
+    Py_INCREF(arg);
+    PyTuple_SET_ITEM(args, 0, arg);
+    result = __Pyx_PyObject_Call(func, args, NULL);
+    Py_DECREF(args);
+    return result;
+}
+static CYTHON_INLINE PyObject* __Pyx_PyObject_CallOneArg(PyObject *func, PyObject *arg) {
+#if CYTHON_FAST_PYCALL
+    if (PyFunction_Check(func)) {
+        return __Pyx_PyFunction_FastCall(func, &arg, 1);
+    }
+#endif
+    if (likely(PyCFunction_Check(func))) {
+        if (likely(PyCFunction_GET_FLAGS(func) & METH_O)) {
+            return __Pyx_PyObject_CallMethO(func, arg);
+#if CYTHON_FAST_PYCCALL
+        } else if (__Pyx_PyFastCFunction_Check(func)) {
+            return __Pyx_PyCFunction_FastCall(func, &arg, 1);
+#endif
+        }
+    }
+    return __Pyx__PyObject_CallOneArg(func, arg);
+}
+#else
+static CYTHON_INLINE PyObject* __Pyx_PyObject_CallOneArg(PyObject *func, PyObject *arg) {
+    PyObject *result;
+    PyObject *args = PyTuple_Pack(1, arg);
+    if (unlikely(!args)) return NULL;
+    result = __Pyx_PyObject_Call(func, args, NULL);
+    Py_DECREF(args);
+    return result;
+}
+#endif
+
+/* PyObjectGetMethod */
+static int __Pyx_PyObject_GetMethod(PyObject *obj, PyObject *name, PyObject **method) {
+    PyObject *attr;
+#if CYTHON_UNPACK_METHODS && CYTHON_COMPILING_IN_CPYTHON && CYTHON_USE_PYTYPE_LOOKUP
+    PyTypeObject *tp = Py_TYPE(obj);
+    PyObject *descr;
+    descrgetfunc f = NULL;
+    PyObject **dictptr, *dict;
+    int meth_found = 0;
+    assert (*method == NULL);
+    if (unlikely(tp->tp_getattro != PyObject_GenericGetAttr)) {
+        attr = __Pyx_PyObject_GetAttrStr(obj, name);
+        goto try_unpack;
+    }
+    if (unlikely(tp->tp_dict == NULL) && unlikely(PyType_Ready(tp) < 0)) {
+        return 0;
+    }
+    descr = _PyType_Lookup(tp, name);
+    if (likely(descr != NULL)) {
+        Py_INCREF(descr);
+#if PY_MAJOR_VERSION >= 3
+        #ifdef __Pyx_CyFunction_USED
+        if (likely(PyFunction_Check(descr) || (Py_TYPE(descr) == &PyMethodDescr_Type) || __Pyx_CyFunction_Check(descr)))
+        #else
+        if (likely(PyFunction_Check(descr) || (Py_TYPE(descr) == &PyMethodDescr_Type)))
+        #endif
+#else
+        #ifdef __Pyx_CyFunction_USED
+        if (likely(PyFunction_Check(descr) || __Pyx_CyFunction_Check(descr)))
+        #else
+        if (likely(PyFunction_Check(descr)))
+        #endif
+#endif
+        {
+            meth_found = 1;
+        } else {
+            f = Py_TYPE(descr)->tp_descr_get;
+            if (f != NULL && PyDescr_IsData(descr)) {
+                attr = f(descr, obj, (PyObject *)Py_TYPE(obj));
+                Py_DECREF(descr);
+                goto try_unpack;
+            }
+        }
+    }
+    dictptr = _PyObject_GetDictPtr(obj);
+    if (dictptr != NULL && (dict = *dictptr) != NULL) {
+        Py_INCREF(dict);
+        attr = __Pyx_PyDict_GetItemStr(dict, name);
+        if (attr != NULL) {
+            Py_INCREF(attr);
+            Py_DECREF(dict);
+            Py_XDECREF(descr);
+            goto try_unpack;
+        }
+        Py_DECREF(dict);
+    }
+    if (meth_found) {
+        *method = descr;
+        return 1;
+    }
+    if (f != NULL) {
+        attr = f(descr, obj, (PyObject *)Py_TYPE(obj));
+        Py_DECREF(descr);
+        goto try_unpack;
+    }
+    if (descr != NULL) {
+        *method = descr;
+        return 0;
+    }
+    PyErr_Format(PyExc_AttributeError,
+#if PY_MAJOR_VERSION >= 3
+                 "'%.50s' object has no attribute '%U'",
+                 tp->tp_name, name);
+#else
+                 "'%.50s' object has no attribute '%.400s'",
+                 tp->tp_name, PyString_AS_STRING(name));
+#endif
+    return 0;
+#else
+    attr = __Pyx_PyObject_GetAttrStr(obj, name);
+    goto try_unpack;
+#endif
+try_unpack:
+#if CYTHON_UNPACK_METHODS
+    if (likely(attr) && PyMethod_Check(attr) && likely(PyMethod_GET_SELF(attr) == obj)) {
+        PyObject *function = PyMethod_GET_FUNCTION(attr);
+        Py_INCREF(function);
+        Py_DECREF(attr);
+        *method = function;
+        return 1;
+    }
+#endif
+    *method = attr;
+    return 0;
+}
+
+/* PyObjectCallMethod1 */
+static PyObject* __Pyx__PyObject_CallMethod1(PyObject* method, PyObject* arg) {
+    PyObject *result = __Pyx_PyObject_CallOneArg(method, arg);
+    Py_DECREF(method);
+    return result;
+}
+static PyObject* __Pyx_PyObject_CallMethod1(PyObject* obj, PyObject* method_name, PyObject* arg) {
+    PyObject *method = NULL, *result;
+    int is_method = __Pyx_PyObject_GetMethod(obj, method_name, &method);
+    if (likely(is_method)) {
+        result = __Pyx_PyObject_Call2Args(method, obj, arg);
+        Py_DECREF(method);
+        return result;
+    }
+    if (unlikely(!method)) return NULL;
+    return __Pyx__PyObject_CallMethod1(method, arg);
+}
+
+/* append */
+static CYTHON_INLINE int __Pyx_PyObject_Append(PyObject* L, PyObject* x) {
+    if (likely(PyList_CheckExact(L))) {
+        if (unlikely(__Pyx_PyList_Append(L, x) < 0)) return -1;
+    } else {
+        PyObject* retval = __Pyx_PyObject_CallMethod1(L, __pyx_n_s_append, x);
+        if (unlikely(!retval))
+            return -1;
+        Py_DECREF(retval);
+    }
+    return 0;
+}
 
 /* GetItemInt */
 static PyObject *__Pyx_GetItemInt_Generic(PyObject *o, PyObject* j) {
@@ -4320,6 +4915,44 @@ bad:
         }\
         return (target_type) value;\
     }
+
+/* CIntToPy */
+static CYTHON_INLINE PyObject* __Pyx_PyInt_From_int(int value) {
+#ifdef __Pyx_HAS_GCC_DIAGNOSTIC
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
+#endif
+    const int neg_one = (int) -1, const_zero = (int) 0;
+#ifdef __Pyx_HAS_GCC_DIAGNOSTIC
+#pragma GCC diagnostic pop
+#endif
+    const int is_unsigned = neg_one > const_zero;
+    if (is_unsigned) {
+        if (sizeof(int) < sizeof(long)) {
+            return PyInt_FromLong((long) value);
+        } else if (sizeof(int) <= sizeof(unsigned long)) {
+            return PyLong_FromUnsignedLong((unsigned long) value);
+#ifdef HAVE_LONG_LONG
+        } else if (sizeof(int) <= sizeof(unsigned PY_LONG_LONG)) {
+            return PyLong_FromUnsignedLongLong((unsigned PY_LONG_LONG) value);
+#endif
+        }
+    } else {
+        if (sizeof(int) <= sizeof(long)) {
+            return PyInt_FromLong((long) value);
+#ifdef HAVE_LONG_LONG
+        } else if (sizeof(int) <= sizeof(PY_LONG_LONG)) {
+            return PyLong_FromLongLong((PY_LONG_LONG) value);
+#endif
+        }
+    }
+    {
+        int one = 1; int little = (int)*(unsigned char *)&one;
+        unsigned char *bytes = (unsigned char *)&value;
+        return _PyLong_FromByteArray(bytes, sizeof(int),
+                                     little, !is_unsigned);
+    }
+}
 
 /* CIntFromPy */
 static CYTHON_INLINE long __Pyx_PyInt_As_long(PyObject *x) {

@@ -102,7 +102,7 @@
                 </body>
             </body>
         </body>
-        <geom name="sphere" type="plane" pos="10 0 0" size="1 1 0.1"/>
+        <geom name="sphere" type="plane" pos="0 10 0" size="1 1 0.1"/>
     </worldbody>
     <tendon>
         <fixed name="left_hipknee">
