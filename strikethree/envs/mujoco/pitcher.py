@@ -1,9 +1,9 @@
 import numpy as np
 import torch
 
-from gym import utils, spaces
-from gym.envs.mujoco import MujocoEnv
-from gym.spaces import Box
+from gymnasium import utils, spaces
+from gymnasium.envs.mujoco import MujocoEnv
+from gymnasium.spaces import Box
 
 from trajectory_module import compute_trajectory
 
@@ -333,7 +333,7 @@ class PitcherEnv(MujocoEnv, utils.EzPickle):
         return terminated
     
     def _has_ball(self, action_vector): 
-        return action_vector[-1] > 0
+        return action_vector[-1] > 0.5
 
     # The following three reward properties are computed at the state of the release point, which
     # is decided by the model. 
@@ -421,7 +421,7 @@ class PitcherEnv(MujocoEnv, utils.EzPickle):
 
     def step(self, action):
         xy_position_before = mass_center(self.model, self.data)
-        self.do_simulation(action[:-1], self.frame_skip)
+        self.do_simulation(action, self.frame_skip)
         xy_position_after = mass_center(self.model, self.data)
 
         xy_velocity = (xy_position_after - xy_position_before) / self.dt

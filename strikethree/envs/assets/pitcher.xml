@@ -141,5 +141,7 @@
         <motor gear="100" joint="left_ankle_y" name="left_ankle_y"/>
         <motor gear="100" joint="right_ankle_z" name="right_ankle_z"/>
         <motor gear="100" joint="right_ankle_y" name="right_ankle_y"/>
+        <adhesion body="right_hand" name="right_hand_grip" ctrlrange="0 1"/>
     </actuator>
+
 </mujoco>

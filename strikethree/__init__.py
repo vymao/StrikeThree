@@ -1,5 +1,4 @@
-from gym.envs.registration import make, register
-
+from gymnasium.envs.registration import make, register
 # Mujoco
 # ----------------------------------------
 

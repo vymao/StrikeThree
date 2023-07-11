@@ -1,7 +1,7 @@
 import strikethree
 from trajectory_module import compute_trajectory
 from pprint import pprint
-import gym
+import gymnasium as gym
 import numpy as np
 import matplotlib.pyplot as plt
 import argparse
@@ -38,6 +38,10 @@ def run_and_plot_trajectory():
 
     return trajectory
 
+def get_action_space(env):
+    print("Action space, high: ", env.action_space.high)
+    print("Action space, low: ", env.action_space.low)
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--env', type=str, default='Pitcher-v1')
@@ -46,6 +50,7 @@ def main():
     args = parser.parse_args()
 
     p = gym.make(args.env)
+    get_action_space(p)
     if args.plot: 
         run_and_plot_trajectory()
 

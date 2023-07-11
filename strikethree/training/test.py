@@ -1,6 +1,6 @@
 import time
 import joblib
-import gym
+import gymnasium as gym
 import os
 import os.path as osp
 import tensorflow as tf
@@ -8,7 +8,7 @@ import torch
 from spinup import EpochLogger
 from spinup.utils.logx import restore_tf_graph
 import strikethree
-
+from ray.rllib.policy.policy import Policy
 
 def load_policy(fpath, itr='last', deterministic=False):
     """
@@ -53,6 +53,7 @@ def load_pytorch_policy(fpath, itr, deterministic=False):
     return get_action
 
 
+
 def run_policy(env, get_action, max_ep_len=None, num_episodes=100, render_info=None):
     assert env is not None, \
         "Environment not found!\n\n It looks like the environment wasn't saved, " + \
@@ -61,12 +62,18 @@ def run_policy(env, get_action, max_ep_len=None, num_episodes=100, render_info=N
 
     logger = EpochLogger()
     o, r, d, ep_ret, ep_len, n = env.reset()[0], 0, False, 0, 0, 0
+    #print("Obs: ", o)
+    min_a, max_a = float('inf'), -float('inf')
     while n < num_episodes:
         if render_info['render'] and render_info['mode'] != 'human':
             env.render()
             time.sleep(1e-3)
 
         a = get_action(o)
+        if len(a) > 1: 
+            a = a[0]
+        min_a, max_a = min(min_a, a[-1]), max(max_a, a[-1])
+        #print("Action: ", a)
         o, r, d, _, info = env.step(a)
         ep_ret += r
         ep_len += 1
@@ -74,6 +81,8 @@ def run_policy(env, get_action, max_ep_len=None, num_episodes=100, render_info=N
         if d or (ep_len == max_ep_len):
             logger.store(EpRet=ep_ret, EpLen=ep_len)
             print('Episode %d \t EpRet %.3f \t EpLen %d'%(n, ep_ret, ep_len))
+            print(min_a, max_a)
+            min_a, max_a = float('inf'), -float('inf')
             o, r, d, ep_ret, ep_len = env.reset()[0], 0, False, 0, 0
             n += 1
 
@@ -103,8 +112,15 @@ if __name__ == '__main__':
         env = gym.make(args.env, render_mode=args.render_mode)
     else: 
         env = gym.make(args.env)
-    get_action = load_policy(args.fpath, 
-                                          args.itr if args.itr >=0 else 'last',
-                                          args.deterministic)
+
+    if 'ray_results' in args.fpath: 
+        # Use the `from_checkpoint` utility of the Policy class:
+        my_restored_policy = Policy.from_checkpoint(args.fpath)
+        get_action = my_restored_policy.compute_single_action
+    else: 
+        get_action = load_policy(args.fpath, 
+                                            args.itr if args.itr >=0 else 'last',
+                                            args.deterministic)
+
     run_policy(env, get_action, args.len, args.episodes, render_info)
     #env.close()
