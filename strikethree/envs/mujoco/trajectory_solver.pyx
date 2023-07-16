@@ -84,7 +84,10 @@ def compute_trajectory(list starting_velo, list starting_pos, store_vals=False, 
 
 
     # We use Python lists for simplicity, since plotting trajectories should not be used in training. 
-    trajectory = [[], [], []]
+    info = {
+        'trajectory': [[lin_pos[0]], [lin_pos[1]], [lin_pos[2]]],
+        'velo': [[lin_velo[0]], [lin_velo[1]], [lin_velo[2]]]
+    }
 
     cdef int iterations = 0
     while distance_travelled < distance_to_home and iterations < max_iterations: 
@@ -95,7 +98,10 @@ def compute_trajectory(list starting_velo, list starting_pos, store_vals=False, 
         for i in range(3): 
             acc[i] = 0
             if store_vals: 
-                trajectory[i].append(lin_pos[i])
+                #norm = l2_norm(lin_velo)
+                info['trajectory'][i].append(lin_pos[i])
+                info['velo'][i].append(lin_velo[i])
+
         
         distance_travelled = lin_pos[1] - initial_position[1]
 
@@ -113,4 +119,4 @@ def compute_trajectory(list starting_velo, list starting_pos, store_vals=False, 
         final_pos.append(lin_pos[i])
         final_velo.append(lin_velo[i])
     
-    return (time_elapsed, final_pos, final_velo, trajectory)
+    return (time_elapsed, final_pos, final_velo, info)

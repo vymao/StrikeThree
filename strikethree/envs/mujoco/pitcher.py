@@ -436,6 +436,7 @@ class PitcherEnv(MujocoEnv, utils.EzPickle):
         observation = self._get_obs()
         reward = rewards - ctrl_cost - windup_cost
         terminated = self.terminated
+        self.ball_in_hand &= self._has_ball(action)
         info = defaultdict(int, {
             "ControlCost": -ctrl_cost,
             "x_position": xy_position_after[0],
@@ -444,10 +445,10 @@ class PitcherEnv(MujocoEnv, utils.EzPickle):
             "x_velocity": x_velocity,
             "y_velocity": y_velocity,
             "WindupCost": -windup_cost,
+            "ball_in_hand": self.ball_in_hand,
+            "last_hand_action": action[-1],
             **rew_info
         })
-
-        self.ball_in_hand &= self._has_ball(action)
 
         if self.render_mode == "human":
             self.render()

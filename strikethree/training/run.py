@@ -2,6 +2,7 @@ import strikethree
 from strikethree.training.td3.model import td3
 from strikethree.training.td3.core import MLPActorCritic
 from strikethree.envs.mujoco.pitcher import PitcherEnv
+from strikethree.training.utils import RewardLoggerCallback
 import gymnasium as gym
 from spinup.utils.run_utils import setup_logger_kwargs
 import os
@@ -48,6 +49,8 @@ if __name__ == '__main__':
     ).resources(
         num_gpus=args.num_gpu,
         num_learner_workers=args.num_workers,
+    ).callbacks(
+        callbacks_class=RewardLoggerCallback
     ).build()
     for i in range(1, args.epochs + 1):
         result = algo.train()
