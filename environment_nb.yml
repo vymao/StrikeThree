@@ -17,6 +17,7 @@ dependencies:
   - jinja2=3.1.2
   - libcxx=14.0.6
   - libffi=3.4.4
+  - libgfortran=3.0.1
   - libprotobuf=3.20.3
   - libuv=1.44.2
   - mkl=2023.1.0
@@ -25,6 +26,9 @@ dependencies:
   - mkl_random=1.2.2
   - mpc=1.1.0
   - mpfr=4.0.2
+  - mpi=1.0
+  - mpi4py=3.1.4
+  - mpich=3.3.2
   - mpmath=1.2.1
   - ncurses=6.4
   - networkx=2.8.4
@@ -34,6 +38,7 @@ dependencies:
   - openssl=3.0.9
   - pip=23.1.2
   - pycparser=2.21
+  - pydantic=1.10.8
   - python=3.9.16
   - pytorch=2.0.1
   - readline=8.2
@@ -42,6 +47,7 @@ dependencies:
   - sympy=1.11.1
   - tbb=2021.8.0
   - tk=8.6.12
+  - typing_extensions=4.6.3
   - typing-extensions=4.6.3
   - typing_extensions=4.6.3
   - wheel=0.37.1
@@ -105,7 +111,6 @@ dependencies:
       - matplotlib-inline==0.1.6
       - mdurl==0.1.2
       - ml-dtypes==0.2.0
-      - mpi4py==3.1.4
       - msgpack==1.0.5
       - mujoco==2.3.6
       - mujoco-py==2.1.2.14
@@ -145,7 +150,7 @@ dependencies:
       - rpds-py==0.8.10
       - rsa==4.9
       - scikit-image==0.21.0
-      - scipy==1.11.0
+      - scipy==1.11.1
       - seaborn==0.8.1
       - six==1.16.0
       - stack-data==0.6.2
