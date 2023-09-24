@@ -1,6 +1,4 @@
 import strikethree
-from strikethree.training.td3.model import td3
-from strikethree.training.td3.core import MLPActorCritic
 from strikethree.envs.mujoco.pitcher import PitcherEnv
 from strikethree.training.utils import RewardLoggerCallback
 import gymnasium as gym
@@ -35,7 +33,7 @@ if __name__ == '__main__':
         data_dir = os.path.join(os.getcwd(), 'data')
     else: 
         data_dir = os.path.join(args.log_dir, 'data')
-        
+
     #if args.num_cores > 1:
     ray.init()
 
