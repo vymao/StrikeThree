@@ -34,3 +34,9 @@ coverage.xml
 
 # Generated files
 data/
+
+# Cloud files
+ec2/
+
+# Temp
+tmp/

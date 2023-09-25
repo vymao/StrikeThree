@@ -27,6 +27,8 @@ if __name__ == '__main__':
     parser.add_argument('--steps_per_epoch', type=int, default=4000)
     parser.add_argument('--num_workers', type=int, default=1)
     parser.add_argument('--num_gpu', type=int, default=0)
+    parser.add_argument('--save', type=bool, action=argparse.BooleanOptionalAction)
+    parser.add_argument('--cp_path', '-cp', type=str, default='')
     args = parser.parse_args()
 
     if args.log_dir == '.': 
@@ -51,9 +53,14 @@ if __name__ == '__main__':
         result = algo.train()
         print(pretty_print(result))
 
-        if i % 5 == 0:
+        if i % 5 == 0 and args.save:
             checkpoint_dir = algo.save()
             print(f"Checkpoint saved in directory {checkpoint_dir}")
+
+    if args.cp_path:
+        policy1 = algo.get_policy()
+        policy1.export_checkpoint(args.cp_path)
+        print(f"Final policy checkpoint saved at {args.cp_path}.")
     """
     else: 
         if args.alg == 'td3': 
