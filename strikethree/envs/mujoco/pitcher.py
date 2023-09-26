@@ -438,6 +438,7 @@ class PitcherEnv(MujocoEnv, utils.EzPickle):
         terminated = self.terminated
         self.ball_in_hand &= self._has_ball(action)
         info = defaultdict(int, {
+            "Reward": reward,
             "ControlCost": -ctrl_cost,
             "x_position": xy_position_after[0],
             "y_position": xy_position_after[1],

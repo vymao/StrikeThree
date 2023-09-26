@@ -28,7 +28,7 @@ class RewardLoggerCallback(DefaultCallbacks):
             'StrikeRew': [],
             'TimeRew': [],
             'ControlCost': [],
-            'WindupCosat': [],
+            'WindupCost': [],
             'ball_in_hand': [],
             'last_hand_action': []
         }
@@ -69,5 +69,6 @@ class RewardLoggerCallback(DefaultCallbacks):
             #episode.custom_metrics[name + "_avg"] = np.mean(value)
             episode.custom_metrics[name] = np.sum(value)
         
-        #episode.hist_data['ball_in_hand'] = episode.user_data['ball_in_hand']
-        #episode.hist_data['last_hand_action'] = episode.user_data['last_hand_action']
+        #episode.hist_data['rew'] = episode.user_data['Reward']
+        episode.hist_data['ball_in_hand'] = episode.user_data['ball_in_hand']
+        episode.hist_data['last_hand_action'] = episode.user_data['last_hand_action']
