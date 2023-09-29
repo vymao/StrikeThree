@@ -272,6 +272,7 @@ class PitcherEnv(MujocoEnv, utils.EzPickle):
         )
 
         self.ball_in_hand = True
+        self.right_foot_violation = False
 
         if exclude_current_positions_from_observation:
             observation_space = Box(
@@ -333,7 +334,7 @@ class PitcherEnv(MujocoEnv, utils.EzPickle):
         return terminated
     
     def _has_ball(self, action_vector): 
-        return action_vector[-1] > 0.5
+        return action_vector[-1] >= 0.5
 
     # The following three reward properties are computed at the state of the release point, which
     # is decided by the model. 
@@ -366,8 +367,9 @@ class PitcherEnv(MujocoEnv, utils.EzPickle):
     def windup_cost(self, pos, has_ball): 
         # Make sure the pitcher throws the ball before the right foot leaves the ground.
         dist = np.linalg.norm(pos - self.right_foot_start)
-        if dist > self._right_foot_shift_limit and has_ball:
-            return 1000
+        if (dist > self._right_foot_shift_limit and has_ball) or self.right_foot_violation:
+            self.right_foot_violation = True
+            return 50
         return 0
 
     def control_cost(self, action):
@@ -427,8 +429,9 @@ class PitcherEnv(MujocoEnv, utils.EzPickle):
         xy_velocity = (xy_position_after - xy_position_before) / self.dt
         x_velocity, y_velocity = xy_velocity
 
+        self.ball_in_hand &= self._has_ball(action)
         ctrl_cost = self.control_cost(action)
-        windup_cost = self.windup_cost(self.data.xpos[6], self._has_ball(action))
+        windup_cost = self.windup_cost(self.data.xpos[6], self.ball_in_hand)
 
         rew_info = self._compute_rewards(action, self.data.cvel, self.data.xpos, y_velocity)
         rewards = rew_info['ForwardRew'] + rew_info['HealthyRew'] + rew_info['ReleaseRew'] + rew_info['StrikeRew'] + rew_info['TimeRew'] + rew_info['ProxRew']
@@ -467,6 +470,7 @@ class PitcherEnv(MujocoEnv, utils.EzPickle):
         )
         self.set_state(qpos, qvel)
         self.ball_in_hand = True
+        self.right_foot_violation = False
 
         observation = self._get_obs()
         return observation
